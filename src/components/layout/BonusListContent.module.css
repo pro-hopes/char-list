@@ -1,0 +1,52 @@
+.empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 8px 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemLabel {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.itemTarget {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.itemValue {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.removeButton {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.removeButton:hover {
+  border-color: var(--danger);
+}

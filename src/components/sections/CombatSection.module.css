@@ -1,0 +1,48 @@
+.hpRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 8px;
+}
+
+.hpBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hpLabel {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.hpControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hpValue {
+  width: 48px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.stepButton {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.stepButton:hover {
+  border-color: var(--accent);
+}

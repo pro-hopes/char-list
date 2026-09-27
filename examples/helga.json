@@ -1,0 +1,88 @@
+{
+  "id": "helga-1",
+  "schemaVersion": 1,
+  "name": "Хельга Железносердая (Унгарт)",
+  "themeColor": "#7A1F1F",
+  "meta": {
+    "race": "Дварф-горец",
+    "className": "Варвар (Путь Фанатика)",
+    "level": 4,
+    "alignment": "Хаотично-доброе",
+    "faction": "Орден Перчатки",
+    "background": "Воспитанница ордена"
+  },
+  "abilities": {
+    "STR": { "id": "str", "label": "СИЛ", "baseValue": 17, "bonusIds": [] },
+    "DEX": { "id": "dex", "label": "ЛОВ", "baseValue": 13, "bonusIds": [] },
+    "CON": { "id": "con", "label": "ТЕЛ", "baseValue": 16, "bonusIds": [] },
+    "INT": { "id": "int", "label": "ИНТ", "baseValue": 8, "bonusIds": [] },
+    "WIS": { "id": "wis", "label": "МДР", "baseValue": 12, "bonusIds": [] },
+    "CHA": { "id": "cha", "label": "ХАР", "baseValue": 10, "bonusIds": [] }
+  },
+  "combat": {
+    "hpMax": { "id": "hpmax", "label": "Хиты (макс.)", "baseValue": 45, "bonusIds": [] },
+    "hpCurrent": 45,
+    "hpTemp": 0,
+    "ac": { "id": "ac", "label": "КД", "baseValue": 10, "linkedAbility": "DEX", "bonusIds": ["b-con-ac"] },
+    "speed": { "id": "speed", "label": "Скорость", "baseValue": 25, "bonusIds": [] },
+    "initiative": { "id": "init", "label": "Инициатива", "baseValue": 0, "linkedAbility": "DEX", "bonusIds": [] }
+  },
+  "savingThrows": {
+    "STR": { "id": "st-str", "label": "Спасбросок СИЛ", "baseValue": 0, "linkedAbility": "STR", "proficient": true, "bonusIds": [] },
+    "DEX": { "id": "st-dex", "label": "Спасбросок ЛОВ", "baseValue": 0, "linkedAbility": "DEX", "proficient": false, "bonusIds": [] },
+    "CON": { "id": "st-con", "label": "Спасбросок ТЕЛ", "baseValue": 0, "linkedAbility": "CON", "proficient": true, "bonusIds": [] },
+    "INT": { "id": "st-int", "label": "Спасбросок ИНТ", "baseValue": 0, "linkedAbility": "INT", "proficient": false, "bonusIds": [] },
+    "WIS": { "id": "st-wis", "label": "Спасбросок МДР", "baseValue": 0, "linkedAbility": "WIS", "proficient": false, "bonusIds": [] },
+    "CHA": { "id": "st-cha", "label": "Спасбросок ХАР", "baseValue": 0, "linkedAbility": "CHA", "proficient": false, "bonusIds": [] }
+  },
+  "skills": [
+    { "id": "sk-akrobatika", "label": "Акробатика", "baseValue": 0, "linkedAbility": "DEX", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-atletika", "label": "Атлетика", "baseValue": 0, "linkedAbility": "STR", "proficient": true, "bonusIds": [], "custom": false },
+    { "id": "sk-vospriyatie", "label": "Восприятие", "baseValue": 0, "linkedAbility": "WIS", "proficient": true, "bonusIds": [], "custom": false },
+    { "id": "sk-vyzhivanie", "label": "Выживание", "baseValue": 0, "linkedAbility": "WIS", "proficient": true, "bonusIds": [], "custom": false },
+    { "id": "sk-vystuplenie", "label": "Выступление", "baseValue": 0, "linkedAbility": "CHA", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-zapugivanie", "label": "Запугивание", "baseValue": 0, "linkedAbility": "CHA", "proficient": true, "bonusIds": [], "custom": false },
+    { "id": "sk-istoriya", "label": "История", "baseValue": 0, "linkedAbility": "INT", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-lovkost-ruk", "label": "Ловкость рук", "baseValue": 0, "linkedAbility": "DEX", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-magiya", "label": "Магия", "baseValue": 0, "linkedAbility": "INT", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-medicina", "label": "Медицина", "baseValue": 0, "linkedAbility": "WIS", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-obman", "label": "Обман", "baseValue": 0, "linkedAbility": "CHA", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-priroda", "label": "Природа", "baseValue": 0, "linkedAbility": "INT", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-pronicatelnost", "label": "Проницательность", "baseValue": 0, "linkedAbility": "WIS", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-rassledovanie", "label": "Расследование", "baseValue": 0, "linkedAbility": "INT", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-religiya", "label": "Религия", "baseValue": 0, "linkedAbility": "INT", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-skrytnost", "label": "Скрытность", "baseValue": 0, "linkedAbility": "DEX", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-ubezhdenie", "label": "Убеждение", "baseValue": 0, "linkedAbility": "CHA", "proficient": false, "bonusIds": [], "custom": false },
+    { "id": "sk-uhod-za-zhivotnymi", "label": "Уход за животными", "baseValue": 0, "linkedAbility": "WIS", "proficient": false, "bonusIds": [], "custom": false }
+  ],
+  "attacks": [
+    {
+      "id": "atk-axe",
+      "name": "Секира",
+      "attackBonus": { "id": "atk-axe-atkbonus", "label": "Бонус атаки", "baseValue": 0, "linkedAbility": "STR", "proficient": true, "bonusIds": [] },
+      "damageDice": "1к12",
+      "damageBonus": { "id": "atk-axe-dmgbonus", "label": "Урон", "baseValue": 0, "linkedAbility": "STR", "bonusIds": ["b-rage-damage"] },
+      "damageType": "рубящий",
+      "notes": "Двуручное оружие"
+    }
+  ],
+  "spellcasting": { "enabled": false, "spellSaveDC": { "id": "spell-dc", "label": "DC заклинаний", "baseValue": 8, "proficient": true, "bonusIds": [] }, "spellAttackBonus": { "id": "spell-atk", "label": "Бонус атаки заклинанием", "baseValue": 0, "proficient": true, "bonusIds": [] }, "cantrips": [], "spellbook": [] },
+  "resources": [
+    { "id": "res-rage", "label": "Ярость", "max": 3, "used": 0, "resetOn": "long_rest" }
+  ],
+  "features": [
+    { "id": "feat-rage", "title": "Ярость", "description": "Бонусным действием: +2 к урону рукопашным оружием на СИЛ, преимущество на проверки и спасброски СИЛ, сопротивление дробящему/колющему/рубящему урону." },
+    { "id": "feat-unarmored", "title": "Защита без доспехов", "description": "КД = 10 + мод. ЛОВ + мод. ТЕЛ, если не носит доспехи." },
+    { "id": "feat-reckless", "title": "Безрассудная атака", "description": "Преимущество на броски атаки СИЛ в этот ход ценой преимущества атак по ней до начала следующего хода." }
+  ],
+  "equipment": [
+    { "id": "eq-axe", "name": "Секира", "note": "Основное оружие" },
+    { "id": "eq-supplies", "name": "Походное снаряжение", "note": "Верёвка, факелы, паёк на неделю" }
+  ],
+  "proficienciesAndLanguages": "Владение: секиры, топоры, ремесленные инструменты (кузнец). Языки: Всеобщий, Дварфийский.",
+  "notes": "Ищет пропавшего наставника из Ордена Перчатки.",
+  "bonuses": [
+    { "id": "b-con-ac", "label": "Защита без доспехов (Тел)", "type": "ability_mod", "abilityKey": "CON", "appliesTo": "ac" },
+    { "id": "b-rage-damage", "label": "Ярость (бонус к урону)", "type": "fixed", "value": 2, "appliesTo": "atk-axe-dmgbonus" }
+  ]
+}

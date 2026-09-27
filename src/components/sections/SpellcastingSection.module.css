@@ -1,0 +1,46 @@
+.enableRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  margin: 14px 0 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.listItem input[type='text'] {
+  flex: 1;
+}
+
+.removeButton {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.addRow {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.addRow input[type='text'] {
+  flex: 1;
+}
+
+.levelInput {
+  width: 50px;
+}
