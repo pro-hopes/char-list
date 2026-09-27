@@ -36,3 +36,42 @@
   min-height: 50px;
   resize: vertical;
 }
+
+.itemBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.itemBody input[type='text'],
+.itemBody input:not([type]) {
+  flex: 1;
+  min-width: 120px;
+}
+
+.quantityControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.quantityValue {
+  width: 36px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.stepButton {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.stepButton:hover {
+  border-color: var(--accent);
+}

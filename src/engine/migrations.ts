@@ -1,10 +1,20 @@
-import { ABILITY_KEYS, ABILITY_LABELS, CURRENT_SCHEMA_VERSION, type Character, type StatField } from '../types/character';
+import { ABILITY_KEYS, ABILITY_LABELS, CURRENT_SCHEMA_VERSION, type Character, type EquipmentItem, type StatField } from '../types/character';
 import { newId } from '../utils/id';
 import { createDefaultSkills } from './defaultTemplates';
 import { syncBonusIds } from './statFieldRegistry';
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+}
+
+function ensureEquipmentItem(value: unknown): EquipmentItem {
+  const obj = asRecord(value);
+  return {
+    id: typeof obj.id === 'string' ? obj.id : newId(),
+    name: typeof obj.name === 'string' ? obj.name : '',
+    note: typeof obj.note === 'string' ? obj.note : '',
+    quantity: typeof obj.quantity === 'number' && obj.quantity >= 0 ? obj.quantity : 1,
+  };
 }
 
 function ensureStatField(value: unknown, fallbackLabel: string): StatField {
@@ -70,7 +80,7 @@ export function migrateCharacter(raw: unknown): Character {
     spellcasting: src.spellcasting ? (src.spellcasting as Character['spellcasting']) : undefined,
     resources: Array.isArray(src.resources) ? (src.resources as Character['resources']) : [],
     features: Array.isArray(src.features) ? (src.features as Character['features']) : [],
-    equipment: Array.isArray(src.equipment) ? (src.equipment as Character['equipment']) : [],
+    equipment: Array.isArray(src.equipment) ? src.equipment.map(ensureEquipmentItem) : [],
     proficienciesAndLanguages:
       typeof src.proficienciesAndLanguages === 'string' ? src.proficienciesAndLanguages : '',
     notes: typeof src.notes === 'string' ? src.notes : '',

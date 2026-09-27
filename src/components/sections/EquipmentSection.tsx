@@ -6,17 +6,42 @@ import styles from './EditableList.module.css';
 export function EquipmentSection({ character }: { character: Character }) {
   const addEquipment = useCharacterStore((s) => s.addEquipment);
   const updateEquipment = useCharacterStore((s) => s.updateEquipment);
+  const adjustEquipmentQuantity = useCharacterStore((s) => s.adjustEquipmentQuantity);
   const removeEquipment = useCharacterStore((s) => s.removeEquipment);
 
   return (
     <div>
       {character.equipment.map((item) => (
         <div key={item.id} className={styles.item}>
-          <div className={styles.itemHead}>
+          <div className={styles.itemBody}>
             <input
+              type="text"
               value={item.name}
               onChange={(e) => updateEquipment(character.id, item.id, { name: e.target.value })}
             />
+            <div className={styles.quantityControls} title="Количество">
+              <button
+                type="button"
+                className={styles.stepButton}
+                onClick={() => adjustEquipmentQuantity(character.id, item.id, -1)}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                min={0}
+                className={styles.quantityValue}
+                value={item.quantity}
+                onChange={(e) => updateEquipment(character.id, item.id, { quantity: Math.max(0, Number(e.target.value)) })}
+              />
+              <button
+                type="button"
+                className={styles.stepButton}
+                onClick={() => adjustEquipmentQuantity(character.id, item.id, 1)}
+              >
+                +
+              </button>
+            </div>
             <button
               type="button"
               className={styles.removeButton}
@@ -26,7 +51,8 @@ export function EquipmentSection({ character }: { character: Character }) {
             </button>
           </div>
           <input
-            style={{ width: '100%' }}
+            type="text"
+            style={{ width: '100%', marginTop: 6 }}
             placeholder="Заметка"
             value={item.note}
             onChange={(e) => updateEquipment(character.id, item.id, { note: e.target.value })}

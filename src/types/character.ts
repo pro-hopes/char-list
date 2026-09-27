@@ -75,6 +75,7 @@ export interface EquipmentItem {
   id: string;
   name: string;
   note: string;
+  quantity: number;
 }
 
 export interface CharacterMeta {

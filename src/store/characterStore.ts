@@ -83,7 +83,8 @@ interface AppActions {
   removeFeature(id: string, featureId: string): void;
 
   addEquipment(id: string): void;
-  updateEquipment(id: string, itemId: string, patch: Partial<Pick<EquipmentItem, 'name' | 'note'>>): void;
+  updateEquipment(id: string, itemId: string, patch: Partial<Pick<EquipmentItem, 'name' | 'note' | 'quantity'>>): void;
+  adjustEquipmentQuantity(id: string, itemId: string, delta: number): void;
   removeEquipment(id: string, itemId: string): void;
 
   updateProficienciesAndLanguages(id: string, text: string): void;
@@ -436,7 +437,7 @@ export const useCharacterStore = create<Store>()(
 
       addEquipment(id) {
         mutateCharacter(id, (character) => {
-          character.equipment.push({ id: newId(), name: 'Новый предмет', note: '' });
+          character.equipment.push({ id: newId(), name: 'Новый предмет', note: '', quantity: 1 });
         });
       },
 
@@ -444,6 +445,13 @@ export const useCharacterStore = create<Store>()(
         mutateCharacter(id, (character) => {
           const item = character.equipment.find((e) => e.id === itemId);
           if (item) Object.assign(item, patch);
+        });
+      },
+
+      adjustEquipmentQuantity(id, itemId, delta) {
+        mutateCharacter(id, (character) => {
+          const item = character.equipment.find((e) => e.id === itemId);
+          if (item) item.quantity = Math.max(0, item.quantity + delta);
         });
       },
 
