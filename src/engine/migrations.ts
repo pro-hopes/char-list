@@ -1,4 +1,14 @@
-import { ABILITY_KEYS, ABILITY_LABELS, CURRENT_SCHEMA_VERSION, type Character, type EquipmentItem, type StatField } from '../types/character';
+import {
+  ABILITY_KEYS,
+  ABILITY_LABELS,
+  CURRENT_SCHEMA_VERSION,
+  type Cantrip,
+  type Character,
+  type EquipmentItem,
+  type SpellbookEntry,
+  type SpellcastingBlock,
+  type StatField,
+} from '../types/character';
 import { newId } from '../utils/id';
 import { createDefaultSkills } from './defaultTemplates';
 import { syncBonusIds } from './statFieldRegistry';
@@ -14,6 +24,45 @@ function ensureEquipmentItem(value: unknown): EquipmentItem {
     name: typeof obj.name === 'string' ? obj.name : '',
     note: typeof obj.note === 'string' ? obj.note : '',
     quantity: typeof obj.quantity === 'number' && obj.quantity >= 0 ? obj.quantity : 1,
+    icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+  };
+}
+
+function ensureCantrip(value: unknown): Cantrip {
+  // старая схема хранила заговоры как простые строки
+  if (typeof value === 'string') {
+    return { id: newId(), name: value, description: '' };
+  }
+  const obj = asRecord(value);
+  return {
+    id: typeof obj.id === 'string' ? obj.id : newId(),
+    name: typeof obj.name === 'string' ? obj.name : '',
+    description: typeof obj.description === 'string' ? obj.description : '',
+    icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+  };
+}
+
+function ensureSpellbookEntry(value: unknown): SpellbookEntry {
+  const obj = asRecord(value);
+  return {
+    id: typeof obj.id === 'string' ? obj.id : newId(),
+    name: typeof obj.name === 'string' ? obj.name : '',
+    level: typeof obj.level === 'number' ? obj.level : 0,
+    prepared: typeof obj.prepared === 'boolean' ? obj.prepared : false,
+    description: typeof obj.description === 'string' ? obj.description : '',
+    icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+  };
+}
+
+function ensureSpellcasting(value: unknown): SpellcastingBlock | undefined {
+  if (!value) return undefined;
+  const obj = asRecord(value);
+  return {
+    enabled: typeof obj.enabled === 'boolean' ? obj.enabled : false,
+    spellSaveDC: ensureStatField(obj.spellSaveDC, 'DC заклинаний'),
+    spellAttackBonus: ensureStatField(obj.spellAttackBonus, 'Бонус атаки заклинанием'),
+    cantrips: Array.isArray(obj.cantrips) ? obj.cantrips.map(ensureCantrip) : [],
+    spellbook: Array.isArray(obj.spellbook) ? obj.spellbook.map(ensureSpellbookEntry) : [],
   };
 }
 
@@ -77,7 +126,7 @@ export function migrateCharacter(raw: unknown): Character {
     savingThrows,
     skills: Array.isArray(src.skills) ? (src.skills as Character['skills']) : createDefaultSkills(),
     attacks: Array.isArray(src.attacks) ? (src.attacks as Character['attacks']) : [],
-    spellcasting: src.spellcasting ? (src.spellcasting as Character['spellcasting']) : undefined,
+    spellcasting: ensureSpellcasting(src.spellcasting),
     resources: Array.isArray(src.resources) ? (src.resources as Character['resources']) : [],
     features: Array.isArray(src.features) ? (src.features as Character['features']) : [],
     equipment: Array.isArray(src.equipment) ? src.equipment.map(ensureEquipmentItem) : [],

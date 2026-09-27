@@ -9,12 +9,14 @@ import type {
   AbilityKey,
   Attack,
   Bonus,
+  Cantrip,
   Character,
   CharacterSummary,
   EquipmentItem,
   Feature,
   ResourceTracker,
   SkillField,
+  SpellbookEntry,
 } from '../types/character';
 import type { PendingImportSource, UiState } from '../types/store';
 import { copyToClipboard, readFromClipboard } from '../utils/clipboard';
@@ -63,27 +65,30 @@ interface AppActions {
   removeSkill(id: string, skillId: string): void;
 
   addAttack(id: string): void;
-  updateAttack(id: string, attackId: string, patch: Partial<Pick<Attack, 'name' | 'damageDice' | 'damageType' | 'notes'>>): void;
+  updateAttack(id: string, attackId: string, patch: Partial<Pick<Attack, 'name' | 'damageDice' | 'damageType' | 'notes' | 'icon'>>): void;
   removeAttack(id: string, attackId: string): void;
 
   setSpellcastingEnabled(id: string, enabled: boolean): void;
-  addCantrip(id: string, text: string): void;
-  removeCantrip(id: string, index: number): void;
+  addCantrip(id: string, name: string): void;
+  updateCantrip(id: string, cantripId: string, patch: Partial<Pick<Cantrip, 'name' | 'description' | 'icon'>>): void;
+  removeCantrip(id: string, cantripId: string): void;
   addSpellbookEntry(id: string, name: string, level: number): void;
+  updateSpellbookEntry(id: string, spellId: string, patch: Partial<Pick<SpellbookEntry, 'name' | 'level' | 'description' | 'icon'>>): void;
   removeSpellbookEntry(id: string, spellId: string): void;
   toggleSpellPrepared(id: string, spellId: string): void;
 
   addResource(id: string, data: Omit<ResourceTracker, 'id' | 'used'>): void;
+  updateResource(id: string, resourceId: string, patch: Partial<Pick<ResourceTracker, 'label' | 'max' | 'resetOn' | 'icon'>>): void;
   removeResource(id: string, resourceId: string): void;
   toggleResourceUsed(id: string, resourceId: string, index: number): void;
   applyRest(id: string, kind: 'short' | 'long'): void;
 
   addFeature(id: string): void;
-  updateFeature(id: string, featureId: string, patch: Partial<Pick<Feature, 'title' | 'description'>>): void;
+  updateFeature(id: string, featureId: string, patch: Partial<Pick<Feature, 'title' | 'description' | 'icon'>>): void;
   removeFeature(id: string, featureId: string): void;
 
   addEquipment(id: string): void;
-  updateEquipment(id: string, itemId: string, patch: Partial<Pick<EquipmentItem, 'name' | 'note' | 'quantity'>>): void;
+  updateEquipment(id: string, itemId: string, patch: Partial<Pick<EquipmentItem, 'name' | 'note' | 'quantity' | 'icon'>>): void;
   adjustEquipmentQuantity(id: string, itemId: string, delta: number): void;
   removeEquipment(id: string, itemId: string): void;
 
@@ -347,21 +352,37 @@ export const useCharacterStore = create<Store>()(
         });
       },
 
-      addCantrip(id, text) {
+      addCantrip(id, name) {
         mutateCharacter(id, (character) => {
-          character.spellcasting?.cantrips.push(text);
+          character.spellcasting?.cantrips.push({ id: newId(), name, description: '' });
         });
       },
 
-      removeCantrip(id, index) {
+      updateCantrip(id, cantripId, patch) {
         mutateCharacter(id, (character) => {
-          character.spellcasting?.cantrips.splice(index, 1);
+          const cantrip = character.spellcasting?.cantrips.find((c) => c.id === cantripId);
+          if (cantrip) Object.assign(cantrip, patch);
+        });
+      },
+
+      removeCantrip(id, cantripId) {
+        mutateCharacter(id, (character) => {
+          if (character.spellcasting) {
+            character.spellcasting.cantrips = character.spellcasting.cantrips.filter((c) => c.id !== cantripId);
+          }
         });
       },
 
       addSpellbookEntry(id, name, level) {
         mutateCharacter(id, (character) => {
-          character.spellcasting?.spellbook.push({ id: newId(), name, level, prepared: false });
+          character.spellcasting?.spellbook.push({ id: newId(), name, level, prepared: false, description: '' });
+        });
+      },
+
+      updateSpellbookEntry(id, spellId, patch) {
+        mutateCharacter(id, (character) => {
+          const spell = character.spellcasting?.spellbook.find((s) => s.id === spellId);
+          if (spell) Object.assign(spell, patch);
         });
       },
 
@@ -383,6 +404,13 @@ export const useCharacterStore = create<Store>()(
       addResource(id, data) {
         mutateCharacter(id, (character) => {
           character.resources.push({ id: newId(), used: 0, ...data });
+        });
+      },
+
+      updateResource(id, resourceId, patch) {
+        mutateCharacter(id, (character) => {
+          const resource = character.resources.find((r) => r.id === resourceId);
+          if (resource) Object.assign(resource, patch);
         });
       },
 

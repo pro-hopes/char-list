@@ -1,0 +1,24 @@
+.iconButton {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconButton:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.iconButton img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

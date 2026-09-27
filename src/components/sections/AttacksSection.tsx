@@ -1,9 +1,12 @@
 import { Dices, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { useDiceRoll } from '../../hooks/useDiceRoll';
 import { useAttackDamage } from '../../hooks/useAttackDamage';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Attack, Character } from '../../types/character';
+import { IconButton } from '../common/IconButton';
+import { IconPickerModal } from '../common/IconPickerModal';
 import { StatFieldView } from '../common/StatFieldView';
 import styles from './AttacksSection.module.css';
 
@@ -20,10 +23,12 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
   const updateAttack = useCharacterStore((s) => s.updateAttack);
   const removeAttack = useCharacterStore((s) => s.removeAttack);
   const { lastRoll, roll } = useDiceRoll();
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
   return (
     <div className={styles.attack}>
       <div className={styles.headRow}>
+        <IconButton icon={attack.icon} onClick={() => setIconPickerOpen(true)} />
         <input
           className={styles.nameInput}
           value={attack.name}
@@ -38,6 +43,14 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
           <Trash2 size={14} />
         </button>
       </div>
+
+      {iconPickerOpen && (
+        <IconPickerModal
+          currentIcon={attack.icon}
+          onClose={() => setIconPickerOpen(false)}
+          onSelect={(icon) => updateAttack(character.id, attack.id, { icon })}
+        />
+      )}
 
       <StatFieldView
         field={attack.attackBonus}

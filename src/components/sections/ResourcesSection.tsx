@@ -2,6 +2,8 @@ import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character, RestType } from '../../types/character';
+import { IconButton } from '../common/IconButton';
+import { IconPickerModal } from '../common/IconPickerModal';
 import styles from './ResourcesSection.module.css';
 
 interface Props {
@@ -17,6 +19,7 @@ const RESET_LABELS: Record<RestType, string> = {
 
 export function ResourcesSection({ character }: Props) {
   const toggleResourceUsed = useCharacterStore((s) => s.toggleResourceUsed);
+  const updateResource = useCharacterStore((s) => s.updateResource);
   const removeResource = useCharacterStore((s) => s.removeResource);
   const addResource = useCharacterStore((s) => s.addResource);
   const applyRest = useCharacterStore((s) => s.applyRest);
@@ -24,6 +27,7 @@ export function ResourcesSection({ character }: Props) {
   const [newLabel, setNewLabel] = useState('');
   const [newMax, setNewMax] = useState(1);
   const [newResetOn, setNewResetOn] = useState<RestType>('long_rest');
+  const [iconPickerFor, setIconPickerFor] = useState<string | null>(null);
 
   return (
     <div>
@@ -39,6 +43,7 @@ export function ResourcesSection({ character }: Props) {
       {character.resources.map((resource) => (
         <div key={resource.id} className={styles.tracker}>
           <div className={styles.trackerHead}>
+            <IconButton icon={resource.icon} onClick={() => setIconPickerFor(resource.id)} />
             <span className={styles.trackerName}>{resource.label}</span>
             <span className={styles.resetLabel}>{RESET_LABELS[resource.resetOn]}</span>
             <button
@@ -92,6 +97,19 @@ export function ResourcesSection({ character }: Props) {
           Добавить
         </button>
       </div>
+
+      {iconPickerFor &&
+        (() => {
+          const resource = character.resources.find((r) => r.id === iconPickerFor);
+          if (!resource) return null;
+          return (
+            <IconPickerModal
+              currentIcon={resource.icon}
+              onClose={() => setIconPickerFor(null)}
+              onSelect={(icon) => updateResource(character.id, resource.id, { icon })}
+            />
+          );
+        })()}
     </div>
   );
 }

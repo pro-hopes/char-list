@@ -1,0 +1,53 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.iconButton {
+  width: 48px;
+  height: 48px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconButton img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.iconButton:hover {
+  border-color: var(--accent);
+}
+
+.iconButtonActive {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.clearRow {
+  margin-bottom: 10px;
+}
+
+.clearButton {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.clearButton:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}

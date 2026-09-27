@@ -1,6 +1,9 @@
 import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
+import { IconButton } from '../common/IconButton';
+import { IconPickerModal } from '../common/IconPickerModal';
 import styles from './EditableList.module.css';
 
 export function EquipmentSection({ character }: { character: Character }) {
@@ -8,12 +11,14 @@ export function EquipmentSection({ character }: { character: Character }) {
   const updateEquipment = useCharacterStore((s) => s.updateEquipment);
   const adjustEquipmentQuantity = useCharacterStore((s) => s.adjustEquipmentQuantity);
   const removeEquipment = useCharacterStore((s) => s.removeEquipment);
+  const [iconPickerFor, setIconPickerFor] = useState<string | null>(null);
 
   return (
     <div>
       {character.equipment.map((item) => (
         <div key={item.id} className={styles.item}>
           <div className={styles.itemBody}>
+            <IconButton icon={item.icon} onClick={() => setIconPickerFor(item.id)} />
             <input
               type="text"
               value={item.name}
@@ -62,6 +67,19 @@ export function EquipmentSection({ character }: { character: Character }) {
       <button type="button" className="accentButton" onClick={() => addEquipment(character.id)}>
         Добавить предмет
       </button>
+
+      {iconPickerFor &&
+        (() => {
+          const item = character.equipment.find((e) => e.id === iconPickerFor);
+          if (!item) return null;
+          return (
+            <IconPickerModal
+              currentIcon={item.icon}
+              onClose={() => setIconPickerFor(null)}
+              onSelect={(icon) => updateEquipment(character.id, item.id, { icon })}
+            />
+          );
+        })()}
     </div>
   );
 }

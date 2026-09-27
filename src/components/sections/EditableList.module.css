@@ -13,8 +13,9 @@
   margin-bottom: 6px;
 }
 
-.itemHead input {
+.itemHead .nameField {
   flex: 1;
+  min-width: 100px;
   font-weight: bold;
 }
 

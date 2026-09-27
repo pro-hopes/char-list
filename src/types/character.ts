@@ -45,14 +45,34 @@ export interface Attack {
   damageBonus: StatField;
   damageType: string;
   notes?: string;
+  /** Имя файла иконки из public/icons/all_icons. */
+  icon?: string;
+}
+
+export interface Cantrip {
+  id: string;
+  name: string;
+  description: string;
+  /** Имя файла иконки из public/icons/all_icons. */
+  icon?: string;
+}
+
+export interface SpellbookEntry {
+  id: string;
+  name: string;
+  level: number;
+  prepared: boolean;
+  description: string;
+  /** Имя файла иконки из public/icons/all_icons. */
+  icon?: string;
 }
 
 export interface SpellcastingBlock {
   enabled: boolean;
   spellSaveDC: StatField;
   spellAttackBonus: StatField;
-  cantrips: string[];
-  spellbook: { id: string; name: string; level: number; prepared: boolean }[];
+  cantrips: Cantrip[];
+  spellbook: SpellbookEntry[];
 }
 
 export type RestType = 'short_rest' | 'long_rest' | 'both' | 'manual';
@@ -63,12 +83,16 @@ export interface ResourceTracker {
   max: number;
   used: number;
   resetOn: RestType;
+  /** Имя файла иконки из public/icons/all_icons. */
+  icon?: string;
 }
 
 export interface Feature {
   id: string;
   title: string;
   description: string;
+  /** Имя файла иконки из public/icons/all_icons. */
+  icon?: string;
 }
 
 export interface EquipmentItem {
@@ -76,6 +100,8 @@ export interface EquipmentItem {
   name: string;
   note: string;
   quantity: number;
+  /** Имя файла иконки из public/icons/all_icons, напр. "icons_atlas_45.webp". */
+  icon?: string;
 }
 
 export interface CharacterMeta {
