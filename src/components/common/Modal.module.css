@@ -14,19 +14,54 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
-  padding: 12px 8px;
   width: 100%;
   max-width: 420px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .panelLarge {
   max-width: 680px;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px 12px 12px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
 .title {
-  margin: 0 0 14px;
+  margin: 0;
   font-size: 1.1rem;
   color: var(--text-primary);
+}
+
+.closeButton {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-raised);
+  color: var(--text-secondary);
+  padding: 0;
+}
+
+.closeButton:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.body {
+  padding: 12px 8px;
+  overflow-y: auto;
 }
