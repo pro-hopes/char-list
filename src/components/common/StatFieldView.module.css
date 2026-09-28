@@ -7,7 +7,7 @@
 }
 
 .label {
-  flex: 1 1 140px;
+  flex: 1 1 120px;
   min-width: 100px;
   font-size: 0.95rem;
   color: var(--text-secondary);
@@ -30,6 +30,24 @@
   min-width: 48px;
   text-align: center;
   color: var(--text-primary);
+}
+
+.displayReadOnly {
+  font-size: 1.3rem;
+  min-width: 40px;
+}
+
+.proficiencyDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--text-muted);
+  flex-shrink: 0;
+}
+
+.proficiencyDotActive {
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .iconButton {

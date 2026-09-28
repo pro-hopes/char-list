@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   z-index: 100;
-  padding: 16px;
+  padding: 4px;
 }
 
 .panel {
@@ -14,11 +14,15 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
-  padding: 20px;
+  padding: 12px 8px;
   width: 100%;
   max-width: 420px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+.panelLarge {
+  max-width: 680px;
 }
 
 .title {

@@ -19,11 +19,9 @@ const RESET_LABELS: Record<RestType, string> = {
 };
 
 export function ResourcesSection({ character }: Props) {
-  const toggleResourceUsed = useCharacterStore((s) => s.toggleResourceUsed);
   const updateResource = useCharacterStore((s) => s.updateResource);
   const removeResource = useCharacterStore((s) => s.removeResource);
   const addResource = useCharacterStore((s) => s.addResource);
-  const applyRest = useCharacterStore((s) => s.applyRest);
 
   const [newLabel, setNewLabel] = useState('');
   const [newMax, setNewMax] = useState(1);
@@ -32,21 +30,34 @@ export function ResourcesSection({ character }: Props) {
 
   return (
     <div>
-      <div className={styles.restRow}>
-        <button type="button" className="accentButton" onClick={() => applyRest(character.id, 'short')}>
-          Короткий отдых
-        </button>
-        <button type="button" className="accentButton" onClick={() => applyRest(character.id, 'long')}>
-          Длинный отдых
-        </button>
-      </div>
-
       {character.resources.map((resource) => (
         <div key={resource.id} className={styles.tracker}>
-          <div className={styles.trackerHead}>
+          <div className={styles.editRow}>
             <IconButton icon={resource.icon} onClick={() => setIconPickerFor(resource.id)} />
-            <span className={styles.trackerName}>{resource.label}</span>
-            <span className={styles.resetLabel}>{RESET_LABELS[resource.resetOn]}</span>
+            <input
+              type="text"
+              value={resource.label}
+              onChange={(e) => updateResource(character.id, resource.id, { label: e.target.value })}
+            />
+            <input
+              type="number"
+              className={styles.maxInput}
+              min={1}
+              value={resource.max}
+              onChange={(e) =>
+                updateResource(character.id, resource.id, { max: Math.max(1, Number(sanitizeNumberInputEvent(e))) })
+              }
+            />
+            <select
+              value={resource.resetOn}
+              onChange={(e) => updateResource(character.id, resource.id, { resetOn: e.target.value as RestType })}
+            >
+              {(Object.keys(RESET_LABELS) as RestType[]).map((key) => (
+                <option key={key} value={key}>
+                  {RESET_LABELS[key]}
+                </option>
+              ))}
+            </select>
             <button
               type="button"
               className={styles.removeButton}
@@ -55,16 +66,6 @@ export function ResourcesSection({ character }: Props) {
             >
               <Trash2 size={14} />
             </button>
-          </div>
-          <div className={styles.checkboxes}>
-            {Array.from({ length: resource.max }).map((_, index) => (
-              <input
-                key={index}
-                type="checkbox"
-                checked={index < resource.used}
-                onChange={() => toggleResourceUsed(character.id, resource.id, index)}
-              />
-            ))}
           </div>
         </div>
       ))}

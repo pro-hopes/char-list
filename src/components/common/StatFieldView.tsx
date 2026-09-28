@@ -16,9 +16,11 @@ interface StatFieldViewProps {
   label?: string;
   /** Ключ в FIELD_INFO — если передан, у поля появляется кнопка "i". */
   infoKey?: string;
-  onChangeBaseValue: (value: number) => void;
+  /** Только чтение: скрывает инпут базового значения, чекбокс владения и кнопку "+бонус". */
+  readOnly?: boolean;
+  onChangeBaseValue?: (value: number) => void;
   onToggleProficient?: () => void;
-  onAddBonusClick: () => void;
+  onAddBonusClick?: () => void;
 }
 
 export function StatFieldView({
@@ -26,6 +28,7 @@ export function StatFieldView({
   computed,
   label,
   infoKey,
+  readOnly,
   onChangeBaseValue,
   onToggleProficient,
   onAddBonusClick,
@@ -35,14 +38,21 @@ export function StatFieldView({
   const canRoll = computed.diceParts.length > 0;
   const bonusCount = field.bonusIds.length;
   const info = infoKey ? FIELD_INFO[infoKey] : undefined;
+  const showProficiencyDot = readOnly && field.proficient !== undefined;
 
   return (
     <div className={styles.row}>
       <span className={styles.label}>{label ?? field.label}</span>
-
       {info && <InfoButton onClick={() => setInfoOpen(true)} title={`Что такое «${info.title}»`} />}
 
-      {onToggleProficient && (
+      {showProficiencyDot && (
+        <span
+          className={`${styles.proficiencyDot} ${field.proficient ? styles.proficiencyDotActive : ''}`}
+          title={field.proficient ? 'Есть владение' : 'Без владения'}
+        />
+      )}
+
+      {!readOnly && onToggleProficient && (
         <input
           type="checkbox"
           className={styles.proficientCheckbox}
@@ -52,26 +62,33 @@ export function StatFieldView({
         />
       )}
 
-      <input
-        type="number"
-        className={styles.baseInput}
-        value={field.baseValue}
-        onChange={(e) => onChangeBaseValue(Number(sanitizeNumberInputEvent(e)))}
-      />
+      {!readOnly && (
+        <input
+          type="number"
+          className={styles.baseInput}
+          value={field.baseValue}
+          onChange={(e) => onChangeBaseValue?.(Number(sanitizeNumberInputEvent(e)))}
+        />
+      )}
 
-      <span className={styles.display} title={computed.breakdown.map((b) => b.source).join(', ')}>
+      <span
+        className={`${styles.display} ${readOnly ? styles.displayReadOnly : ''}`}
+        title={computed.breakdown.map((b) => b.source).join(', ')}
+      >
         {computed.display}
       </span>
 
-      <button
-        type="button"
-        className={`${styles.iconButton} ${bonusCount > 0 ? styles.iconButtonHasBonus : ''}`}
-        onClick={onAddBonusClick}
-        title="Добавить бонус"
-      >
-        <Plus size={14} />
-        <BonusBadge count={bonusCount} />
-      </button>
+      {!readOnly && onAddBonusClick && (
+        <button
+          type="button"
+          className={`${styles.iconButton} ${bonusCount > 0 ? styles.iconButtonHasBonus : ''}`}
+          onClick={onAddBonusClick}
+          title="Добавить бонус"
+        >
+          <Plus size={14} />
+          <BonusBadge count={bonusCount} />
+        </button>
+      )}
 
       {canRoll && (
         <button

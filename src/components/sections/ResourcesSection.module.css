@@ -61,3 +61,22 @@
 .maxInput {
   width: 60px;
 }
+
+.empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.editRow input[type='text'],
+.editRow input:not([type]) {
+  flex: 1;
+  min-width: 100px;
+}
