@@ -2,6 +2,7 @@ import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character, RestType } from '../../types/character';
+import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
 import styles from './ResourcesSection.module.css';
@@ -75,7 +76,7 @@ export function ResourcesSection({ character }: Props) {
           className={styles.maxInput}
           min={1}
           value={newMax}
-          onChange={(e) => setNewMax(Math.max(1, Number(e.target.value)))}
+          onChange={(e) => setNewMax(Math.max(1, Number(sanitizeNumberInputEvent(e))))}
         />
         <select value={newResetOn} onChange={(e) => setNewResetOn(e.target.value as RestType)}>
           {(Object.keys(RESET_LABELS) as RestType[]).map((key) => (

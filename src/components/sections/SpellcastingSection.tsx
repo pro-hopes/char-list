@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Cantrip, Character, SpellbookEntry } from '../../types/character';
+import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
 import { StatFieldView } from '../common/StatFieldView';
@@ -84,7 +85,7 @@ function SpellCard({
           max={9}
           title="Круг"
           value={spell.level}
-          onChange={(e) => updateSpellbookEntry(character.id, spell.id, { level: Number(e.target.value) })}
+          onChange={(e) => updateSpellbookEntry(character.id, spell.id, { level: Number(sanitizeNumberInputEvent(e)) })}
         />
         <input
           type="checkbox"
@@ -201,7 +202,7 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
               min={0}
               max={9}
               value={newSpellLevel}
-              onChange={(e) => setNewSpellLevel(Number(e.target.value))}
+              onChange={(e) => setNewSpellLevel(Number(sanitizeNumberInputEvent(e)))}
             />
             <button
               type="button"

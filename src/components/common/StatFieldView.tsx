@@ -2,6 +2,7 @@ import { Dices, Plus } from 'lucide-react';
 import { useDiceRoll } from '../../hooks/useDiceRoll';
 import type { StatFieldComputeResult } from '../../engine/computeStatField';
 import type { StatField } from '../../types/character';
+import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { BonusBadge } from './BonusBadge';
 import styles from './StatFieldView.module.css';
 
@@ -44,7 +45,7 @@ export function StatFieldView({
         type="number"
         className={styles.baseInput}
         value={field.baseValue}
-        onChange={(e) => onChangeBaseValue(Number(e.target.value))}
+        onChange={(e) => onChangeBaseValue(Number(sanitizeNumberInputEvent(e)))}
       />
 
       <span className={styles.display} title={computed.breakdown.map((b) => b.source).join(', ')}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { isValidDiceNotation } from '../../engine/dice';
 import { ABILITY_KEYS, ABILITY_LABELS, type AbilityKey, type Bonus, type BonusType } from '../../types/character';
+import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import styles from './BonusModal.module.css';
 import { Modal } from './Modal';
 
@@ -79,7 +80,12 @@ export function BonusModal({ fieldLabel, onClose, onSubmit }: BonusModalProps) {
       {type === 'fixed' && (
         <div className={styles.field}>
           <label htmlFor="bonus-value">Значение</label>
-          <input id="bonus-value" type="number" value={value} onChange={(e) => setValue(e.target.value)} />
+          <input
+            id="bonus-value"
+            type="number"
+            value={value}
+            onChange={(e) => setValue(sanitizeNumberInputEvent(e))}
+          />
         </div>
       )}
 

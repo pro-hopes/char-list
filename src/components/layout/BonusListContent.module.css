@@ -4,6 +4,22 @@
   padding: 8px 0;
 }
 
+.group {
+  margin-bottom: 14px;
+}
+
+.group:last-child {
+  margin-bottom: 0;
+}
+
+.groupTitle {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .item {
   display: flex;
   align-items: flex-start;

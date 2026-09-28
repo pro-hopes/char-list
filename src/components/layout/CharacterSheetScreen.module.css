@@ -50,8 +50,8 @@
   border-color: var(--accent);
 }
 
-@media (min-width: 375px) and (max-width: 480px) {
+@media (min-width: 350px) and (max-width: 480px) {
   .main {
-    padding: 12px;
+    padding: 12px 4px 40px;
   }
 }

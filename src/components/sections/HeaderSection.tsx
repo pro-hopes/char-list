@@ -1,6 +1,7 @@
 import { ColorPicker } from '../common/ColorPicker';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
+import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import styles from './HeaderSection.module.css';
 
 export function HeaderSection({ character }: { character: Character }) {
@@ -43,7 +44,7 @@ export function HeaderSection({ character }: { character: Character }) {
             min={1}
             max={20}
             value={character.meta.level}
-            onChange={(e) => updateMeta(character.id, { level: Math.max(1, Number(e.target.value)) })}
+            onChange={(e) => updateMeta(character.id, { level: Math.max(1, Number(sanitizeNumberInputEvent(e))) })}
           />
         </div>
         <div className={styles.field}>
