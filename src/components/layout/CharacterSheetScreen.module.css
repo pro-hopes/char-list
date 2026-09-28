@@ -9,6 +9,7 @@
   padding: 16px;
   max-width: 720px;
   margin: 0 auto;
+  background-image: url("/char-list/images/bg-piece-paper.png");
 }
 
 .topBar {
