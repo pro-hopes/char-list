@@ -1,0 +1,26 @@
+{
+  "name": "D&D Персонаж",
+  "short_name": "D&D Персонаж",
+  "description": "Интерактивный лист персонажа D&D 5e",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "ru",
+  "theme_color": "#14100f",
+  "background_color": "#14100f",
+  "icons": [
+    {
+      "src": "icon_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
