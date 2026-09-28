@@ -2,6 +2,7 @@ import { Dices, Plus } from 'lucide-react';
 import { useDiceRoll } from '../../hooks/useDiceRoll';
 import type { StatFieldComputeResult } from '../../engine/computeStatField';
 import type { StatField } from '../../types/character';
+import { BonusBadge } from './BonusBadge';
 import styles from './StatFieldView.module.css';
 
 interface StatFieldViewProps {
@@ -23,6 +24,7 @@ export function StatFieldView({
 }: StatFieldViewProps) {
   const { lastRoll, roll } = useDiceRoll();
   const canRoll = computed.diceParts.length > 0;
+  const bonusCount = field.bonusIds.length;
 
   return (
     <div className={styles.row}>
@@ -49,8 +51,14 @@ export function StatFieldView({
         {computed.display}
       </span>
 
-      <button type="button" className={styles.iconButton} onClick={onAddBonusClick} title="Добавить бонус">
+      <button
+        type="button"
+        className={`${styles.iconButton} ${bonusCount > 0 ? styles.iconButtonHasBonus : ''}`}
+        onClick={onAddBonusClick}
+        title="Добавить бонус"
+      >
         <Plus size={14} />
+        <BonusBadge count={bonusCount} />
       </button>
 
       {canRoll && (

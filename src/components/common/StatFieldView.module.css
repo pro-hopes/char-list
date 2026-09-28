@@ -33,6 +33,7 @@
 }
 
 .iconButton {
+  position: relative;
   width: 26px;
   height: 26px;
   display: inline-flex;
@@ -47,6 +48,14 @@
 
 .iconButton:hover {
   border-color: var(--accent);
+}
+
+.iconButtonHasBonus {
+  border-color: var(--success);
+}
+
+.iconButtonHasBonus:hover {
+  border-color: var(--success);
 }
 
 .rollButton {

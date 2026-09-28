@@ -5,6 +5,7 @@ import { useAttackDamage } from '../../hooks/useAttackDamage';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Attack, Character } from '../../types/character';
+import { BonusBadge } from '../common/BonusBadge';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
 import { StatFieldView } from '../common/StatFieldView';
@@ -70,11 +71,12 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
         />
         <button
           type="button"
-          className="accentButton"
+          className={`accentButton ${styles.damageBonusButton} ${attack.damageBonus.bonusIds.length > 0 ? styles.damageBonusButtonHasBonus : ''}`}
           onClick={() => onAddBonus(attack.damageBonus.id, `${attack.name}: урон`)}
           title="Добавить бонус к урону"
         >
           +
+          <BonusBadge count={attack.damageBonus.bonusIds.length} />
         </button>
         <span className={styles.damageDisplay}>{attackResult.damageDisplay}</span>
         <input
