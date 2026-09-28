@@ -4,12 +4,17 @@ import { useDiceRoll } from '../../hooks/useDiceRoll';
 import { useAttackDamage } from '../../hooks/useAttackDamage';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
+import { FIELD_INFO } from '../../engine/fieldInfo';
 import type { Attack, Character } from '../../types/character';
 import { BonusBadge } from '../common/BonusBadge';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
+import { InfoButton } from '../common/InfoButton';
+import { InfoModal } from '../common/InfoModal';
 import { StatFieldView } from '../common/StatFieldView';
 import styles from './AttacksSection.module.css';
+
+const damageInfo = FIELD_INFO['attack-damage'];
 
 interface Props {
   character: Character;
@@ -25,6 +30,7 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
   const removeAttack = useCharacterStore((s) => s.removeAttack);
   const { lastRoll, roll } = useDiceRoll();
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const [damageInfoOpen, setDamageInfoOpen] = useState(false);
 
   return (
     <div className={styles.attack}>
@@ -57,6 +63,7 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
         field={attack.attackBonus}
         computed={attackBonusComputed}
         label="Бонус атаки"
+        infoKey="attack-bonus"
         onChangeBaseValue={(v) => updateFieldBaseValue(character.id, attack.attackBonus.id, v)}
         onToggleProficient={() => toggleProficient(character.id, attack.attackBonus.id)}
         onAddBonusClick={() => onAddBonus(attack.attackBonus.id, `${attack.name}: бонус атаки`)}
@@ -64,6 +71,7 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
 
       <div className={styles.damageRow}>
         <span>Урон:</span>
+        {damageInfo && <InfoButton onClick={() => setDamageInfoOpen(true)} title={`Что такое «${damageInfo.title}»`} />}
         <input
           className={styles.diceInput}
           value={attack.damageDice}
@@ -97,6 +105,16 @@ function AttackRow({ character, attack, onAddBonus }: { character: Character; at
         )}
       </div>
       {lastRoll && <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{lastRoll}</div>}
+
+      {damageInfo && damageInfoOpen && (
+        <InfoModal
+          title={damageInfo.title}
+          description={damageInfo.description}
+          affects={damageInfo.affects}
+          breakdown={[{ source: 'Кубик оружия', dice: attack.damageDice }, ...attackResult.damageBonusResult.breakdown]}
+          onClose={() => setDamageInfoOpen(false)}
+        />
+      )}
 
       <input
         className={styles.notesInput}

@@ -1,0 +1,65 @@
+.description {
+  margin: 0 0 12px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.affectsLabel {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.affects {
+  margin: 0 0 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.breakdownLabel {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.breakdownList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.breakdownRow:last-child {
+  border-bottom: none;
+}
+
+.breakdownValue {
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.closeButton {
+  margin-top: 14px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+}
+
+.closeButton:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}

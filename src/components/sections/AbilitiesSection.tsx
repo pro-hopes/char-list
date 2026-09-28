@@ -18,6 +18,7 @@ function AbilityRow({ character, ability, onAddBonus }: { character: Character; 
       field={field}
       computed={computed}
       label={label}
+      infoKey={`ability-${ability}`}
       onChangeBaseValue={(value) => updateFieldBaseValue(character.id, field.id, value)}
       onAddBonusClick={() => onAddBonus(field.id, label)}
     />

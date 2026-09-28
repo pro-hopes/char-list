@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Modal.module.css';
 
 interface ModalProps {
@@ -8,7 +9,7 @@ interface ModalProps {
 }
 
 export function Modal({ title, onClose, children }: ModalProps) {
-  return (
+  return createPortal(
     <div
       className={styles.overlay}
       onMouseDown={(e) => {
@@ -19,6 +20,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
         <h3 className={styles.title}>{title}</h3>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

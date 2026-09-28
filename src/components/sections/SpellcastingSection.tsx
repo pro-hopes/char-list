@@ -148,6 +148,7 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
             field={sc.spellSaveDC}
             computed={dcComputed}
             label="DC заклинаний"
+            infoKey="spell-dc"
             onChangeBaseValue={(v) => updateFieldBaseValue(character.id, sc.spellSaveDC.id, v)}
             onToggleProficient={() => toggleProficient(character.id, sc.spellSaveDC.id)}
             onAddBonusClick={() => onAddBonus(sc.spellSaveDC.id, 'DC заклинаний')}
@@ -156,6 +157,7 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
             field={sc.spellAttackBonus}
             computed={atkComputed}
             label="Бонус атаки заклинанием"
+            infoKey="spell-attack"
             onChangeBaseValue={(v) => updateFieldBaseValue(character.id, sc.spellAttackBonus.id, v)}
             onToggleProficient={() => toggleProficient(character.id, sc.spellAttackBonus.id)}
             onAddBonusClick={() => onAddBonus(sc.spellAttackBonus.id, 'Бонус атаки заклинанием')}

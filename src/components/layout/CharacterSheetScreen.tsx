@@ -5,6 +5,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
 import { BonusModal } from '../common/BonusModal';
+import { SectionInfoButton } from '../common/SectionInfoButton';
 import { AbilitiesSection } from '../sections/AbilitiesSection';
 import { AttacksSection } from '../sections/AttacksSection';
 import { CombatSection } from '../sections/CombatSection';
@@ -57,7 +58,7 @@ export function CharacterSheetScreen({ character }: { character: Character }) {
           <HeaderSection character={character} />
         </AccordionSection>
 
-        <AccordionSection id="abilities" title="Характеристики">
+        <AccordionSection id="abilities" title="Характеристики" actions={<SectionInfoButton infoKey="section-abilities" />}>
           <AbilitiesSection character={character} onAddBonus={onAddBonus} />
         </AccordionSection>
 
@@ -65,11 +66,11 @@ export function CharacterSheetScreen({ character }: { character: Character }) {
           <CombatSection character={character} onAddBonus={onAddBonus} />
         </AccordionSection>
 
-        <AccordionSection id="saves" title="Спасброски">
+        <AccordionSection id="saves" title="Спасброски" actions={<SectionInfoButton infoKey="section-saves" />}>
           <SavingThrowsSection character={character} onAddBonus={onAddBonus} />
         </AccordionSection>
 
-        <AccordionSection id="skills" title="Навыки">
+        <AccordionSection id="skills" title="Навыки" actions={<SectionInfoButton infoKey="section-skills" />}>
           <SkillsSection character={character} onAddBonus={onAddBonus} />
         </AccordionSection>
 
@@ -81,7 +82,7 @@ export function CharacterSheetScreen({ character }: { character: Character }) {
           <SpellcastingSection character={character} onAddBonus={onAddBonus} />
         </AccordionSection>
 
-        <AccordionSection id="resources" title="Ресурсы">
+        <AccordionSection id="resources" title="Ресурсы" actions={<SectionInfoButton infoKey="section-resources" />}>
           <ResourcesSection character={character} />
         </AccordionSection>
 

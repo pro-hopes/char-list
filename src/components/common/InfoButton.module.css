@@ -1,0 +1,18 @@
+.button {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-raised);
+  color: var(--text-secondary);
+  padding: 0;
+}
+
+.button:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}

@@ -54,24 +54,28 @@ export function CombatSection({ character, onAddBonus }: Props) {
       <StatFieldView
         field={character.combat.hpMax}
         computed={hpMax}
+        infoKey="combat-hp"
         onChangeBaseValue={(v) => updateFieldBaseValue(character.id, character.combat.hpMax.id, v)}
         onAddBonusClick={() => onAddBonus(character.combat.hpMax.id, character.combat.hpMax.label)}
       />
       <StatFieldView
         field={character.combat.ac}
         computed={ac}
+        infoKey="combat-ac"
         onChangeBaseValue={(v) => updateFieldBaseValue(character.id, character.combat.ac.id, v)}
         onAddBonusClick={() => onAddBonus(character.combat.ac.id, character.combat.ac.label)}
       />
       <StatFieldView
         field={character.combat.speed}
         computed={speed}
+        infoKey="combat-speed"
         onChangeBaseValue={(v) => updateFieldBaseValue(character.id, character.combat.speed.id, v)}
         onAddBonusClick={() => onAddBonus(character.combat.speed.id, character.combat.speed.label)}
       />
       <StatFieldView
         field={character.combat.initiative}
         computed={initiative}
+        infoKey="combat-initiative"
         onChangeBaseValue={(v) => updateFieldBaseValue(character.id, character.combat.initiative.id, v)}
         onAddBonusClick={() => onAddBonus(character.combat.initiative.id, character.combat.initiative.label)}
       />
