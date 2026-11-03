@@ -1,7 +1,12 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { applyBeastFormDamage, getActiveBeastForm } from '../engine/beastForm';
-import { createDefaultBeastForm, createDefaultCharacter, createEmptyAttack } from '../engine/defaultTemplates';
+import {
+  createDefaultBeastForm,
+  createDefaultCharacter,
+  createEmptyAttack,
+  createEmptySpellSlots,
+} from '../engine/defaultTemplates';
 import { migrateCharacter } from '../engine/migrations';
 import { parseCharacterFromText } from '../engine/schema';
 import { buildShareUrl, clearShareHash, decodeCharacterFromShare, readShareHashFromLocation } from '../engine/share';
@@ -20,6 +25,7 @@ import type {
   ResourceTracker,
   SkillField,
   SpellbookEntry,
+  SpellDetails,
 } from '../types/character';
 import type { PendingImportSource, UiState } from '../types/store';
 import { copyToClipboard, readFromClipboard } from '../utils/clipboard';
@@ -73,12 +79,15 @@ interface AppActions {
 
   setSpellcastingEnabled(id: string, enabled: boolean): void;
   addCantrip(id: string, name: string): void;
-  updateCantrip(id: string, cantripId: string, patch: Partial<Pick<Cantrip, 'name' | 'description' | 'icon'>>): void;
+  updateCantrip(id: string, cantripId: string, patch: Partial<Pick<Cantrip, 'name' | 'description' | 'icon' | keyof SpellDetails>>): void;
   removeCantrip(id: string, cantripId: string): void;
   addSpellbookEntry(id: string, name: string, level: number): void;
-  updateSpellbookEntry(id: string, spellId: string, patch: Partial<Pick<SpellbookEntry, 'name' | 'level' | 'description' | 'icon'>>): void;
+  updateSpellbookEntry(id: string, spellId: string, patch: Partial<Pick<SpellbookEntry, 'name' | 'level' | 'description' | 'icon' | keyof SpellDetails>>): void;
   removeSpellbookEntry(id: string, spellId: string): void;
   toggleSpellPrepared(id: string, spellId: string): void;
+  setSpellSlotMax(id: string, level: number, max: number): void;
+  toggleSpellSlotUsed(id: string, level: number, index: number): void;
+  setSpellsPreparedOnly(id: string, preparedOnly: boolean): void;
 
   addResource(id: string, data: Omit<ResourceTracker, 'id' | 'used'>): void;
   updateResource(id: string, resourceId: string, patch: Partial<Pick<ResourceTracker, 'label' | 'max' | 'resetOn' | 'icon'>>): void;
@@ -365,6 +374,8 @@ export const useCharacterStore = create<Store>()(
               },
               cantrips: [],
               spellbook: [],
+              slots: createEmptySpellSlots(),
+              preparedOnly: false,
             };
           } else if (character.spellcasting) {
             character.spellcasting.enabled = enabled;
@@ -421,6 +432,28 @@ export const useCharacterStore = create<Store>()(
         });
       },
 
+      setSpellSlotMax(id, level, max) {
+        mutateCharacter(id, (character) => {
+          const slot = character.spellcasting?.slots[level - 1];
+          if (!slot) return;
+          slot.max = Math.max(0, max);
+          slot.used = Math.min(slot.used, slot.max);
+        });
+      },
+
+      toggleSpellSlotUsed(id, level, index) {
+        mutateCharacter(id, (character) => {
+          const slot = character.spellcasting?.slots[level - 1];
+          if (slot) slot.used = index < slot.used ? index : index + 1;
+        });
+      },
+
+      setSpellsPreparedOnly(id, preparedOnly) {
+        mutateCharacter(id, (character) => {
+          if (character.spellcasting) character.spellcasting.preparedOnly = preparedOnly;
+        });
+      },
+
       addResource(id, data) {
         mutateCharacter(id, (character) => {
           character.resources.push({ id: newId(), used: 0, ...data });
@@ -461,6 +494,9 @@ export const useCharacterStore = create<Store>()(
             ) {
               resource.used = 0;
             }
+          }
+          if (kind === 'long') {
+            for (const slot of character.spellcasting?.slots ?? []) slot.used = 0;
           }
         });
       },

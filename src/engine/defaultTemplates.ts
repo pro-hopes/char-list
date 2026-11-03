@@ -1,11 +1,13 @@
 import {
   ABILITY_KEYS,
   CURRENT_SCHEMA_VERSION,
+  SPELL_SLOT_LEVELS,
   type AbilityKey,
   type Attack,
   type BeastForm,
   type Character,
   type SkillField,
+  type SpellSlotLevel,
   type StatField,
 } from '../types/character';
 import { newId } from '../utils/id';
@@ -107,6 +109,10 @@ export function createDefaultCharacter(name = 'Новый персонаж'): Ch
     bonuses: [],
     beastForms: [],
   };
+}
+
+export function createEmptySpellSlots(): SpellSlotLevel[] {
+  return Array.from({ length: SPELL_SLOT_LEVELS }, () => ({ max: 0, used: 0 }));
 }
 
 export function createDefaultBeastForm(): BeastForm {

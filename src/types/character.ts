@@ -49,7 +49,21 @@ export interface Attack {
   icon?: string;
 }
 
-export interface Cantrip {
+/** Короткие параметры заклинания для строки в листе. Все поля необязательные. */
+export interface SpellDetails {
+  castingTime?: string;
+  range?: string;
+  duration?: string;
+  /** Формула урона/лечения, напр. "2к8" или "1к4 + 3" — по ней работает кнопка броска. */
+  damage?: string;
+  damageType?: string;
+  concentration?: boolean;
+  ritual?: boolean;
+}
+
+export const SPELL_DETAIL_TEXT_KEYS = ['castingTime', 'range', 'duration', 'damage', 'damageType'] as const;
+
+export interface Cantrip extends SpellDetails {
   id: string;
   name: string;
   description: string;
@@ -57,7 +71,7 @@ export interface Cantrip {
   icon?: string;
 }
 
-export interface SpellbookEntry {
+export interface SpellbookEntry extends SpellDetails {
   id: string;
   name: string;
   level: number;
@@ -67,12 +81,23 @@ export interface SpellbookEntry {
   icon?: string;
 }
 
+export interface SpellSlotLevel {
+  max: number;
+  used: number;
+}
+
+export const SPELL_SLOT_LEVELS = 9;
+
 export interface SpellcastingBlock {
   enabled: boolean;
   spellSaveDC: StatField;
   spellAttackBonus: StatField;
   cantrips: Cantrip[];
   spellbook: SpellbookEntry[];
+  /** Ячейки заклинаний 1–9 круга: slots[0] — 1 круг. */
+  slots: SpellSlotLevel[];
+  /** Показывать в листе только подготовленные заклинания. */
+  preparedOnly: boolean;
 }
 
 export type RestType = 'short_rest' | 'long_rest' | 'both' | 'manual';

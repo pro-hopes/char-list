@@ -10,11 +10,14 @@ import {
   type Character,
   type EquipmentItem,
   type SpellbookEntry,
+  SPELL_DETAIL_TEXT_KEYS,
+  type SpellDetails,
   type SpellcastingBlock,
+  type SpellSlotLevel,
   type StatField,
 } from '../types/character';
 import { newId } from '../utils/id';
-import { createDefaultSkills } from './defaultTemplates';
+import { createDefaultSkills, createEmptySpellSlots } from './defaultTemplates';
 import { syncBonusIds } from './statFieldRegistry';
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -32,6 +35,18 @@ function ensureEquipmentItem(value: unknown): EquipmentItem {
   };
 }
 
+/** Необязательные параметры заклинания: в результат попадают только реально заданные значения. */
+function ensureSpellDetails(obj: Record<string, unknown>): SpellDetails {
+  const details: SpellDetails = {};
+  for (const key of SPELL_DETAIL_TEXT_KEYS) {
+    const value = obj[key];
+    if (typeof value === 'string' && value.trim()) details[key] = value;
+  }
+  if (obj.concentration === true) details.concentration = true;
+  if (obj.ritual === true) details.ritual = true;
+  return details;
+}
+
 function ensureCantrip(value: unknown): Cantrip {
   // старая схема хранила заговоры как простые строки
   if (typeof value === 'string') {
@@ -43,6 +58,7 @@ function ensureCantrip(value: unknown): Cantrip {
     name: typeof obj.name === 'string' ? obj.name : '',
     description: typeof obj.description === 'string' ? obj.description : '',
     icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+    ...ensureSpellDetails(obj),
   };
 }
 
@@ -55,6 +71,7 @@ function ensureSpellbookEntry(value: unknown): SpellbookEntry {
     prepared: typeof obj.prepared === 'boolean' ? obj.prepared : false,
     description: typeof obj.description === 'string' ? obj.description : '',
     icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+    ...ensureSpellDetails(obj),
   };
 }
 
@@ -67,7 +84,19 @@ function ensureSpellcasting(value: unknown): SpellcastingBlock | undefined {
     spellAttackBonus: ensureStatField(obj.spellAttackBonus, 'Бонус атаки заклинанием'),
     cantrips: Array.isArray(obj.cantrips) ? obj.cantrips.map(ensureCantrip) : [],
     spellbook: Array.isArray(obj.spellbook) ? obj.spellbook.map(ensureSpellbookEntry) : [],
+    slots: ensureSpellSlots(obj.slots),
+    preparedOnly: typeof obj.preparedOnly === 'boolean' ? obj.preparedOnly : false,
   };
+}
+
+function ensureSpellSlots(value: unknown): SpellSlotLevel[] {
+  const src = Array.isArray(value) ? value : [];
+  return createEmptySpellSlots().map((empty, index) => {
+    const obj = asRecord(src[index]);
+    const max = typeof obj.max === 'number' && obj.max > 0 ? Math.floor(obj.max) : empty.max;
+    const used = typeof obj.used === 'number' && obj.used > 0 ? Math.min(max, Math.floor(obj.used)) : empty.used;
+    return { max, used };
+  });
 }
 
 function ensureStatField(value: unknown, fallbackLabel: string): StatField {

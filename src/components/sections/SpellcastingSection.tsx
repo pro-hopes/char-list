@@ -2,7 +2,7 @@ import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
-import type { Cantrip, Character, SpellbookEntry } from '../../types/character';
+import type { Cantrip, Character, SpellbookEntry, SpellDetails } from '../../types/character';
 import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
@@ -16,6 +16,43 @@ interface Props {
 }
 
 type IconPickerTarget = { kind: 'cantrip' | 'spell'; id: string } | null;
+
+const DETAIL_FIELDS: Array<{ key: Exclude<keyof SpellDetails, 'concentration' | 'ritual'>; placeholder: string }> = [
+  { key: 'castingTime', placeholder: 'Время накл.' },
+  { key: 'range', placeholder: 'Дистанция' },
+  { key: 'duration', placeholder: 'Длительность' },
+  { key: 'damage', placeholder: 'Урон (2к8+3)' },
+  { key: 'damageType', placeholder: 'Тип урона' },
+];
+
+function SpellDetailsFields({ spell, onChange }: { spell: SpellDetails; onChange: (patch: SpellDetails) => void }) {
+  return (
+    <div className={styles.details}>
+      {DETAIL_FIELDS.map(({ key, placeholder }) => (
+        <input
+          key={key}
+          type="text"
+          placeholder={placeholder}
+          aria-label={placeholder}
+          value={spell[key] ?? ''}
+          onChange={(e) => onChange({ [key]: e.target.value })}
+        />
+      ))}
+      <label className={styles.flag}>
+        <input
+          type="checkbox"
+          checked={!!spell.concentration}
+          onChange={(e) => onChange({ concentration: e.target.checked })}
+        />
+        Концентрация
+      </label>
+      <label className={styles.flag}>
+        <input type="checkbox" checked={!!spell.ritual} onChange={(e) => onChange({ ritual: e.target.checked })} />
+        Ритуал
+      </label>
+    </div>
+  );
+}
 
 function CantripCard({
   character,
@@ -46,6 +83,7 @@ function CantripCard({
           <Trash2 size={14} />
         </button>
       </div>
+      <SpellDetailsFields spell={cantrip} onChange={(patch) => updateCantrip(character.id, cantrip.id, patch)} />
       <textarea
         className={listStyles.textarea}
         placeholder="Описание"
@@ -101,6 +139,7 @@ function SpellCard({
           <Trash2 size={14} />
         </button>
       </div>
+      <SpellDetailsFields spell={spell} onChange={(patch) => updateSpellbookEntry(character.id, spell.id, patch)} />
       <textarea
         className={listStyles.textarea}
         placeholder="Описание"
@@ -119,6 +158,7 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
   const updateCantrip = useCharacterStore((s) => s.updateCantrip);
   const addSpellbookEntry = useCharacterStore((s) => s.addSpellbookEntry);
   const updateSpellbookEntry = useCharacterStore((s) => s.updateSpellbookEntry);
+  const setSpellSlotMax = useCharacterStore((s) => s.setSpellSlotMax);
 
   const [newCantrip, setNewCantrip] = useState('');
   const [newSpellName, setNewSpellName] = useState('');
@@ -162,6 +202,21 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
             onToggleProficient={() => toggleProficient(character.id, sc.spellAttackBonus.id)}
             onAddBonusClick={() => onAddBonus(sc.spellAttackBonus.id, 'Бонус атаки заклинанием')}
           />
+
+          <h4 className={styles.subtitle}>Ячейки заклинаний</h4>
+          <div className={styles.slotsGrid}>
+            {sc.slots.map((slot, index) => (
+              <label key={index} className={styles.slotField}>
+                <span>{index + 1} круг</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={slot.max}
+                  onChange={(e) => setSpellSlotMax(character.id, index + 1, Number(sanitizeNumberInputEvent(e)))}
+                />
+              </label>
+            ))}
+          </div>
 
           <h4 className={styles.subtitle}>Заговоры</h4>
           {sc.cantrips.map((cantrip) => (

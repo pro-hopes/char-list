@@ -1,8 +1,87 @@
-.subtitle {
-  margin: 14px 0 6px;
-  color: var(--text-secondary);
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 4px;
+}
+
+.filterOption {
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-raised);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
   font-size: 0.85rem;
+}
+
+.filterOption:hover {
+  border-color: var(--accent);
+}
+
+.filterOptionActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.group {
+  margin-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0 4px;
+}
+
+.groupToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.groupTitle {
+  font-size: 0.85rem;
+  font-weight: bold;
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.groupCount {
+  min-width: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.slots input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.groupBody {
+  padding-left: 4px;
 }
 
 .item {
@@ -40,17 +119,6 @@
   overflow-wrap: anywhere;
 }
 
-.itemLevel {
-  flex-shrink: 0;
-  white-space: nowrap;
-  font-weight: normal;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  padding: 1px 6px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-}
-
 .expandButton {
   display: inline-flex;
   align-items: center;
@@ -67,6 +135,54 @@
 
 .expandButton:hover {
   color: var(--text-secondary);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tag {
+  padding: 0 6px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.damage {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.rollButton {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 1px 4px;
+}
+
+.rollButton:hover {
+  background: var(--accent);
+}
+
+.rollResult {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 .itemDescription {

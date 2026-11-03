@@ -44,6 +44,40 @@ export function rollDiceFormula(notations: string[], rng: () => number = Math.ra
   return { perTerm, total };
 }
 
+/** "0к6" и "2к0" проходят регулярку, но бросить их нельзя. */
+function isRollableDice(notation: string): boolean {
+  if (!isValidDiceNotation(notation)) return false;
+  try {
+    parseDiceNotation(notation);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Разбирает свободно введённую формулу вида "2к8", "1к4 + 3", "1к8+1к6+2".
+ * Возвращает null, если формула не распознана — тогда её просто показываем текстом без броска.
+ */
+export function parseRollFormula(formula: string): { flat: number; diceParts: string[] } | null {
+  const terms = formula
+    .replace(/\s+/g, '')
+    // "2d8" латиницей, "2Д8" и "2К8" — частые варианты записи
+    .replace(/[dDдДК]/g, 'к')
+    .split('+')
+    .filter((term) => term.length > 0);
+  if (terms.length === 0) return null;
+
+  let flat = 0;
+  const diceParts: string[] = [];
+  for (const term of terms) {
+    if (/^\d+$/.test(term)) flat += Number(term);
+    else if (isRollableDice(term)) diceParts.push(term);
+    else return null;
+  }
+  return diceParts.length > 0 ? { flat, diceParts } : null;
+}
+
 export interface StatFieldRollSummary {
   grandTotal: number;
   summaryText: string;
