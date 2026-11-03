@@ -43,8 +43,13 @@
   color: var(--text-primary);
 }
 
-.stepButton:hover {
+.stepButton:hover:not(:disabled) {
   border-color: var(--accent);
+}
+
+.stepButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .formHp {

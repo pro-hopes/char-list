@@ -7,6 +7,7 @@ import {
   createEmptyAttack,
   createEmptySpellSlots,
 } from '../engine/defaultTemplates';
+import { clampHp, computeHpMax } from '../engine/hitPoints';
 import { migrateCharacter } from '../engine/migrations';
 import { parseCharacterFromText } from '../engine/schema';
 import { buildShareUrl, clearShareHash, decodeCharacterFromShare, readShareHashFromLocation } from '../engine/share';
@@ -287,15 +288,18 @@ export const useCharacterStore = create<Store>()(
       },
 
       adjustHp(id, kind, delta) {
-        mutateCharacter(id, (character) => {
-          if (kind === 'current') character.combat.hpCurrent += delta;
-          else character.combat.hpTemp = Math.max(0, character.combat.hpTemp + delta);
-        });
+        const current = get().characters[id];
+        if (!current) return;
+        get().setHpValue(id, kind, (kind === 'current' ? current.combat.hpCurrent : current.combat.hpTemp) + delta);
       },
 
       setHpValue(id, kind, value) {
+        const current = get().characters[id];
+        if (!current) return;
+        // максимум считаем по неизменённому персонажу, а не по immer-черновику
+        const hpMax = kind === 'current' ? computeHpMax(current) : 0;
         mutateCharacter(id, (character) => {
-          if (kind === 'current') character.combat.hpCurrent = value;
+          if (kind === 'current') character.combat.hpCurrent = clampHp(value, hpMax);
           else character.combat.hpTemp = Math.max(0, value);
         });
       },
