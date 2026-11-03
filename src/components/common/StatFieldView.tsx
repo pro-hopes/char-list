@@ -4,11 +4,11 @@ import { useDiceRoll } from '../../hooks/useDiceRoll';
 import type { StatFieldComputeResult } from '../../engine/computeStatField';
 import { FIELD_INFO } from '../../engine/fieldInfo';
 import type { StatField } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { useIsFromBeastForm } from '../layout/BeastFormContext';
 import { BonusBadge } from './BonusBadge';
 import { InfoButton } from './InfoButton';
 import { InfoModal } from './InfoModal';
+import { NumberInput } from './NumberInput';
 import styles from './StatFieldView.module.css';
 
 interface StatFieldViewProps {
@@ -72,11 +72,10 @@ export function StatFieldView({
       )}
 
       {!readOnly && (
-        <input
-          type="number"
+        <NumberInput
           className={styles.baseInput}
           value={field.baseValue}
-          onChange={(e) => onChangeBaseValue?.(Number(sanitizeNumberInputEvent(e)))}
+          onChange={(v) => onChangeBaseValue?.(v)}
         />
       )}
 

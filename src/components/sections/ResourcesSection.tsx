@@ -2,9 +2,9 @@ import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character, RestType } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
+import { NumberInput } from '../common/NumberInput';
 import styles from './ResourcesSection.module.css';
 
 interface Props {
@@ -39,14 +39,11 @@ export function ResourcesSection({ character }: Props) {
               value={resource.label}
               onChange={(e) => updateResource(character.id, resource.id, { label: e.target.value })}
             />
-            <input
-              type="number"
+            <NumberInput
               className={styles.maxInput}
               min={1}
               value={resource.max}
-              onChange={(e) =>
-                updateResource(character.id, resource.id, { max: Math.max(1, Number(sanitizeNumberInputEvent(e))) })
-              }
+              onChange={(v) => updateResource(character.id, resource.id, { max: Math.max(1, v) })}
             />
             <select
               value={resource.resetOn}
@@ -72,12 +69,11 @@ export function ResourcesSection({ character }: Props) {
 
       <div className={styles.addRow}>
         <input placeholder="Название (напр. Ярость)" value={newLabel} onChange={(e) => setNewLabel(e.target.value)} />
-        <input
-          type="number"
+        <NumberInput
           className={styles.maxInput}
           min={1}
           value={newMax}
-          onChange={(e) => setNewMax(Math.max(1, Number(sanitizeNumberInputEvent(e))))}
+          onChange={(v) => setNewMax(Math.max(1, v))}
         />
         <select value={newResetOn} onChange={(e) => setNewResetOn(e.target.value as RestType)}>
           {(Object.keys(RESET_LABELS) as RestType[]).map((key) => (

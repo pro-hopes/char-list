@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
 import type { BeastForm, Character } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
+import { NumberInput } from '../common/NumberInput';
 import styles from './CombatSection.module.css';
 
 /**
@@ -35,12 +35,11 @@ export function BeastFormHpCounter({ character, form }: { character: Character; 
       </div>
 
       <div className={styles.formHpActions}>
-        <input
-          type="number"
+        <NumberInput
           min={0}
           className={styles.hpValue}
           value={amount}
-          onChange={(e) => setAmount(Math.max(0, Number(sanitizeNumberInputEvent(e))))}
+          onChange={(v) => setAmount(Math.max(0, v))}
           aria-label="Количество хитов"
         />
         <button

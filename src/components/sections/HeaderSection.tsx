@@ -1,7 +1,7 @@
 import { ColorPicker } from '../common/ColorPicker';
+import { NumberInput } from '../common/NumberInput';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { BeastFormsEditor } from './BeastFormsEditor';
 import styles from './HeaderSection.module.css';
 
@@ -39,13 +39,12 @@ export function HeaderSection({ character }: { character: Character }) {
         </div>
         <div className={styles.field}>
           <label htmlFor="meta-level">Уровень</label>
-          <input
+          <NumberInput
             id="meta-level"
-            type="number"
             min={1}
             max={20}
             value={character.meta.level}
-            onChange={(e) => updateMeta(character.id, { level: Math.max(1, Number(sanitizeNumberInputEvent(e))) })}
+            onChange={(v) => updateMeta(character.id, { level: Math.max(1, v) })}
           />
         </div>
         <div className={styles.field}>

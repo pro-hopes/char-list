@@ -2,9 +2,9 @@ import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
+import { NumberInput } from '../common/NumberInput';
 import styles from './EditableList.module.css';
 
 export function EquipmentSection({ character }: { character: Character }) {
@@ -33,14 +33,11 @@ export function EquipmentSection({ character }: { character: Character }) {
               >
                 −
               </button>
-              <input
-                type="number"
+              <NumberInput
                 min={0}
                 className={styles.quantityValue}
                 value={item.quantity}
-                onChange={(e) =>
-                  updateEquipment(character.id, item.id, { quantity: Math.max(0, Number(sanitizeNumberInputEvent(e))) })
-                }
+                onChange={(v) => updateEquipment(character.id, item.id, { quantity: Math.max(0, v) })}
               />
               <button
                 type="button"

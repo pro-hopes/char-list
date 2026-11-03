@@ -1,7 +1,7 @@
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
+import { NumberInput } from '../common/NumberInput';
 import styles from './CombatSection.module.css';
 
 export function HpCounter({ character, kind, label }: { character: Character; kind: 'current' | 'temp'; label: string }) {
@@ -19,13 +19,12 @@ export function HpCounter({ character, kind, label }: { character: Character; ki
         <button type="button" className={styles.stepButton} onClick={() => adjustHp(character.id, kind, -1)}>
           −
         </button>
-        <input
-          type="number"
+        <NumberInput
           className={styles.hpValue}
           min={0}
           max={kind === 'current' && hpMax > 0 ? hpMax : undefined}
           value={value}
-          onChange={(e) => setHpValue(character.id, kind, Number(sanitizeNumberInputEvent(e)))}
+          onChange={(v) => setHpValue(character.id, kind, v)}
         />
         <button
           type="button"

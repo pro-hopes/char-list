@@ -2,9 +2,9 @@ import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import { ABILITY_LABELS, BEAST_ABILITY_KEYS, type BeastForm, type Character } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
+import { NumberInput } from '../common/NumberInput';
 import listStyles from './EditableList.module.css';
 import styles from './BeastFormsEditor.module.css';
 
@@ -12,7 +12,7 @@ function NumberField({ label, value, min, onChange }: { label: string; value: nu
   return (
     <label className={styles.numberField}>
       <span>{label}</span>
-      <input type="number" min={min} value={value} onChange={(e) => onChange(Number(sanitizeNumberInputEvent(e)))} />
+      <NumberInput min={min} value={value} onChange={onChange} />
     </label>
   );
 }
@@ -78,13 +78,10 @@ function BeastFormCard({ character, form }: { character: Character; form: BeastF
                 </option>
               ))}
           </select>
-          <input
-            type="number"
+          <NumberInput
             className={styles.smallInput}
             value={beastSkill.value}
-            onChange={(e) =>
-              updateBeastFormSkill(character.id, form.id, beastSkill.skillId, { value: Number(sanitizeNumberInputEvent(e)) })
-            }
+            onChange={(v) => updateBeastFormSkill(character.id, form.id, beastSkill.skillId, { value: v })}
           />
           <button
             type="button"

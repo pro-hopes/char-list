@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useStatField } from '../../hooks/useStatField';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Cantrip, Character, SpellbookEntry, SpellDetails } from '../../types/character';
-import { sanitizeNumberInputEvent } from '../../utils/numberInput';
 import { IconButton } from '../common/IconButton';
 import { IconPickerModal } from '../common/IconPickerModal';
+import { NumberInput } from '../common/NumberInput';
 import { StatFieldView } from '../common/StatFieldView';
 import listStyles from './EditableList.module.css';
 import styles from './SpellcastingSection.module.css';
@@ -116,14 +116,13 @@ function SpellCard({
           value={spell.name}
           onChange={(e) => updateSpellbookEntry(character.id, spell.id, { name: e.target.value })}
         />
-        <input
-          type="number"
+        <NumberInput
           className={styles.levelInput}
           min={0}
           max={9}
           title="Круг"
           value={spell.level}
-          onChange={(e) => updateSpellbookEntry(character.id, spell.id, { level: Number(sanitizeNumberInputEvent(e)) })}
+          onChange={(v) => updateSpellbookEntry(character.id, spell.id, { level: v })}
         />
         <input
           type="checkbox"
@@ -208,11 +207,10 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
             {sc.slots.map((slot, index) => (
               <label key={index} className={styles.slotField}>
                 <span>{index + 1} круг</span>
-                <input
-                  type="number"
+                <NumberInput
                   min={0}
                   value={slot.max}
-                  onChange={(e) => setSpellSlotMax(character.id, index + 1, Number(sanitizeNumberInputEvent(e)))}
+                  onChange={(v) => setSpellSlotMax(character.id, index + 1, v)}
                 />
               </label>
             ))}
@@ -253,13 +251,12 @@ export function SpellcastingSection({ character, onAddBonus }: Props) {
           ))}
           <div className={styles.addRow}>
             <input type="text" placeholder="Название заклинания" value={newSpellName} onChange={(e) => setNewSpellName(e.target.value)} />
-            <input
-              type="number"
+            <NumberInput
               className={styles.levelInput}
               min={0}
               max={9}
               value={newSpellLevel}
-              onChange={(e) => setNewSpellLevel(Number(sanitizeNumberInputEvent(e)))}
+              onChange={setNewSpellLevel}
             />
             <button
               type="button"
