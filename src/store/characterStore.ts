@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { createDefaultCharacter } from '../engine/defaultTemplates';
+import { applyBeastFormDamage, getActiveBeastForm } from '../engine/beastForm';
+import { createDefaultBeastForm, createDefaultCharacter, createEmptyAttack } from '../engine/defaultTemplates';
 import { migrateCharacter } from '../engine/migrations';
 import { parseCharacterFromText } from '../engine/schema';
 import { buildShareUrl, clearShareHash, decodeCharacterFromShare, readShareHashFromLocation } from '../engine/share';
@@ -8,6 +9,8 @@ import { findStatField, syncBonusIds } from '../engine/statFieldRegistry';
 import type {
   AbilityKey,
   Attack,
+  BeastAbilityKey,
+  BeastForm,
   Bonus,
   Cantrip,
   Character,
@@ -92,6 +95,22 @@ interface AppActions {
   adjustEquipmentQuantity(id: string, itemId: string, delta: number): void;
   removeEquipment(id: string, itemId: string): void;
 
+  addBeastForm(id: string): void;
+  updateBeastForm(id: string, formId: string, patch: Partial<Pick<BeastForm, 'name' | 'icon' | 'ac' | 'speed' | 'hpMax' | 'notes'>>): void;
+  updateBeastFormAbility(id: string, formId: string, ability: BeastAbilityKey, value: number): void;
+  removeBeastForm(id: string, formId: string): void;
+  addBeastFormSkill(id: string, formId: string, skillId: string): void;
+  updateBeastFormSkill(id: string, formId: string, skillId: string, patch: { skillId?: string; value?: number }): void;
+  removeBeastFormSkill(id: string, formId: string, skillId: string): void;
+  addBeastFormAttack(id: string, formId: string): void;
+  updateBeastFormAttack(id: string, formId: string, attackId: string, patch: BeastAttackPatch): void;
+  removeBeastFormAttack(id: string, formId: string, attackId: string): void;
+  setBeastFormResource(id: string, resourceId: string | undefined): void;
+  activateBeastForm(id: string, formId: string): void;
+  revertBeastForm(id: string): void;
+  damageBeastForm(id: string, amount: number): void;
+  healBeastForm(id: string, amount: number): void;
+
   updateProficienciesAndLanguages(id: string, text: string): void;
   updateNotes(id: string, text: string): void;
 
@@ -109,6 +128,15 @@ interface AppActions {
 }
 
 type Store = AppState & AppActions;
+
+export type BeastAttackPatch = Partial<Pick<Attack, 'name' | 'damageDice' | 'damageType' | 'notes' | 'icon'>> & {
+  attackBonus?: number;
+  damageBonus?: number;
+};
+
+function findBeastForm(character: Character, formId: string): BeastForm | undefined {
+  return character.beastForms.find((f) => f.id === formId);
+}
 
 function findConflictId(index: CharacterSummary[], name: string, excludeId?: string): string | undefined {
   const normalized = name.trim().toLowerCase();
@@ -299,15 +327,7 @@ export const useCharacterStore = create<Store>()(
 
       addAttack(id) {
         mutateCharacter(id, (character) => {
-          const attack: Attack = {
-            id: newId(),
-            name: 'Новая атака',
-            attackBonus: { id: newId(), label: 'Бонус атаки', baseValue: 0, bonusIds: [] },
-            damageDice: '1к6',
-            damageBonus: { id: newId(), label: 'Урон', baseValue: 0, bonusIds: [] },
-            damageType: '',
-          };
-          character.attacks.push(attack);
+          character.attacks.push(createEmptyAttack());
         });
       },
 
@@ -417,6 +437,7 @@ export const useCharacterStore = create<Store>()(
       removeResource(id, resourceId) {
         mutateCharacter(id, (character) => {
           character.resources = character.resources.filter((r) => r.id !== resourceId);
+          if (character.beastFormResourceId === resourceId) character.beastFormResourceId = undefined;
         });
       },
 
@@ -486,6 +507,146 @@ export const useCharacterStore = create<Store>()(
       removeEquipment(id, itemId) {
         mutateCharacter(id, (character) => {
           character.equipment = character.equipment.filter((e) => e.id !== itemId);
+        });
+      },
+
+      addBeastForm(id) {
+        mutateCharacter(id, (character) => {
+          character.beastForms.push(createDefaultBeastForm());
+        });
+      },
+
+      updateBeastForm(id, formId, patch) {
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          if (!form) return;
+          Object.assign(form, patch);
+          if (patch.hpMax !== undefined) {
+            form.hpMax = Math.max(1, patch.hpMax);
+            form.hpCurrent = Math.min(form.hpCurrent, form.hpMax);
+          }
+        });
+      },
+
+      updateBeastFormAbility(id, formId, ability, value) {
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          if (form) form.abilities[ability] = value;
+        });
+      },
+
+      removeBeastForm(id, formId) {
+        mutateCharacter(id, (character) => {
+          character.beastForms = character.beastForms.filter((f) => f.id !== formId);
+          if (character.activeBeastFormId === formId) character.activeBeastFormId = undefined;
+        });
+      },
+
+      addBeastFormSkill(id, formId, skillId) {
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          if (form && !form.skills.some((s) => s.skillId === skillId)) form.skills.push({ skillId, value: 0 });
+        });
+      },
+
+      updateBeastFormSkill(id, formId, skillId, patch) {
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          const skill = form?.skills.find((s) => s.skillId === skillId);
+          if (!form || !skill) return;
+          // один навык — одна строка: не даём выбрать навык, который уже есть в облике
+          if (patch.skillId && patch.skillId !== skillId && form.skills.some((s) => s.skillId === patch.skillId)) return;
+          Object.assign(skill, patch);
+        });
+      },
+
+      removeBeastFormSkill(id, formId, skillId) {
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          if (form) form.skills = form.skills.filter((s) => s.skillId !== skillId);
+        });
+      },
+
+      addBeastFormAttack(id, formId) {
+        mutateCharacter(id, (character) => {
+          findBeastForm(character, formId)?.attacks.push(createEmptyAttack());
+        });
+      },
+
+      updateBeastFormAttack(id, formId, attackId, patch) {
+        mutateCharacter(id, (character) => {
+          const attack = findBeastForm(character, formId)?.attacks.find((a) => a.id === attackId);
+          if (!attack) return;
+          const { attackBonus, damageBonus, ...rest } = patch;
+          Object.assign(attack, rest);
+          if (attackBonus !== undefined) attack.attackBonus.baseValue = attackBonus;
+          if (damageBonus !== undefined) attack.damageBonus.baseValue = damageBonus;
+        });
+      },
+
+      removeBeastFormAttack(id, formId, attackId) {
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          if (form) form.attacks = form.attacks.filter((a) => a.id !== attackId);
+        });
+      },
+
+      setBeastFormResource(id, resourceId) {
+        mutateCharacter(id, (character) => {
+          character.beastFormResourceId = resourceId;
+        });
+      },
+
+      activateBeastForm(id, formId) {
+        let exhaustedResource: string | undefined;
+        mutateCharacter(id, (character) => {
+          const form = findBeastForm(character, formId);
+          if (!form) return;
+          form.hpCurrent = form.hpMax;
+          character.activeBeastFormId = formId;
+          const resource = character.resources.find((r) => r.id === character.beastFormResourceId);
+          if (!resource) return;
+          if (resource.used < resource.max) resource.used += 1;
+          else exhaustedResource = resource.label;
+        });
+        if (exhaustedResource) {
+          get().showToast(`Использований «${exhaustedResource}» не осталось — облик принят без списания`, 'error');
+        }
+      },
+
+      revertBeastForm(id) {
+        mutateCharacter(id, (character) => {
+          character.activeBeastFormId = undefined;
+        });
+      },
+
+      damageBeastForm(id, amount) {
+        let revertMessage: string | undefined;
+        mutateCharacter(id, (character) => {
+          const form = getActiveBeastForm(character);
+          if (!form || amount <= 0) return;
+          const result = applyBeastFormDamage(
+            { temp: character.combat.hpTemp, formHp: form.hpCurrent, ownHp: character.combat.hpCurrent },
+            amount,
+          );
+          character.combat.hpTemp = result.temp;
+          form.hpCurrent = result.formHp;
+          character.combat.hpCurrent = result.ownHp;
+          if (result.reverted) {
+            character.activeBeastFormId = undefined;
+            revertMessage =
+              result.overflow > 0
+                ? `Облик «${form.name}» спал, остаток урона ${result.overflow} перешёл на хиты персонажа`
+                : `Облик «${form.name}» спал`;
+          }
+        });
+        if (revertMessage) get().showToast(revertMessage);
+      },
+
+      healBeastForm(id, amount) {
+        mutateCharacter(id, (character) => {
+          const form = getActiveBeastForm(character);
+          if (form && amount > 0) form.hpCurrent = Math.min(form.hpMax, form.hpCurrent + amount);
         });
       },
 

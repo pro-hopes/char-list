@@ -1,10 +1,11 @@
-import { Dices, Plus } from 'lucide-react';
+import { Dices, PawPrint, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useDiceRoll } from '../../hooks/useDiceRoll';
 import type { StatFieldComputeResult } from '../../engine/computeStatField';
 import { FIELD_INFO } from '../../engine/fieldInfo';
 import type { StatField } from '../../types/character';
 import { sanitizeNumberInputEvent } from '../../utils/numberInput';
+import { useIsFromBeastForm } from '../layout/BeastFormContext';
 import { BonusBadge } from './BonusBadge';
 import { InfoButton } from './InfoButton';
 import { InfoModal } from './InfoModal';
@@ -39,10 +40,18 @@ export function StatFieldView({
   const bonusCount = field.bonusIds.length;
   const info = infoKey ? FIELD_INFO[infoKey] : undefined;
   const showProficiencyDot = readOnly && field.proficient !== undefined;
+  const fromBeastForm = useIsFromBeastForm(field.id);
 
   return (
-    <div className={styles.row}>
-      <span className={styles.label}>{label ?? field.label}</span>
+    <div className={`${styles.row} ${fromBeastForm ? styles.rowFromForm : ''}`}>
+      <span className={styles.label}>
+        {label ?? field.label}
+        {fromBeastForm && (
+          <span className={styles.formIcon} title="Значение облика">
+            <PawPrint size={13} />
+          </span>
+        )}
+      </span>
       {info && <InfoButton onClick={() => setInfoOpen(true)} title={`Что такое «${info.title}»`} />}
 
       {showProficiencyDot && (

@@ -1,0 +1,48 @@
+.wrapper {
+  margin-bottom: 16px;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-panel-raised);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-weight: 600;
+}
+
+.option:hover {
+  border-color: var(--accent);
+}
+
+.optionActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.resource {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.notes {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-panel-raised);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+}

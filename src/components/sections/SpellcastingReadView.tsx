@@ -42,6 +42,9 @@ export function SpellcastingReadView({ character }: { character: Character }) {
 
   return (
     <div>
+      {character.activeBeastFormId && (
+        <p className={styles.formWarning}>В облике нельзя накладывать заклинания.</p>
+      )}
       <StatFieldView field={sc.spellSaveDC} computed={dcComputed} label="DC заклинаний" infoKey="spell-dc" readOnly />
       <StatFieldView
         field={sc.spellAttackBonus}
@@ -60,7 +63,7 @@ export function SpellcastingReadView({ character }: { character: Character }) {
             {cantrip.icon && <img className={styles.itemIcon} src={resolveIconUrl(cantrip.icon)} alt="" />}
             <div className={styles.itemBody}>
               <div className={styles.itemName}>
-                {cantrip.name}
+                <span className={styles.itemTitle}>{cantrip.name}</span>
                 {cantrip.description && <ExpandToggle expanded={expanded} onToggle={() => toggleExpanded(cantrip.id, false)} />}
               </div>
               {expanded && cantrip.description && <div className={styles.itemDescription}>{cantrip.description}</div>}
@@ -92,7 +95,8 @@ export function SpellcastingReadView({ character }: { character: Character }) {
             {spell.icon && <img className={styles.itemIcon} src={resolveIconUrl(spell.icon)} alt="" />}
             <div className={styles.itemBody}>
               <div className={styles.itemName}>
-                {spell.name} <span className={styles.itemLevel}>круг {spell.level}</span>
+                <span className={styles.itemTitle}>{spell.name}</span>
+                <span className={styles.itemLevel}>круг {spell.level}</span>
                 {spell.description && <ExpandToggle expanded={expanded} onToggle={() => toggleExpanded(spell.id, spell.prepared)} />}
               </div>
               {expanded && spell.description && <div className={styles.itemDescription}>{spell.description}</div>}

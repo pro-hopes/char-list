@@ -122,6 +122,33 @@ export interface CombatBlock {
   initiative: StatField;
 }
 
+/** Характеристики, которые облик заменяет (ИНТ/МДР/ХАР остаются от персонажа). */
+export type BeastAbilityKey = 'STR' | 'DEX' | 'CON';
+
+export const BEAST_ABILITY_KEYS: BeastAbilityKey[] = ['STR', 'DEX', 'CON'];
+
+/** Бонус навыка зверя: если он выше, чем у персонажа, в облике берётся он. */
+export interface BeastSkill {
+  skillId: string;
+  value: number;
+}
+
+/** Облик (Дикий облик друида и т.п.) — временно подменяет физические параметры персонажа. */
+export interface BeastForm {
+  id: string;
+  name: string;
+  /** Имя файла иконки из public/icons/all_icons. */
+  icon?: string;
+  abilities: Record<BeastAbilityKey, number>;
+  ac: number;
+  speed: number;
+  hpMax: number;
+  hpCurrent: number;
+  skills: BeastSkill[];
+  attacks: Attack[];
+  notes: string;
+}
+
 export const CURRENT_SCHEMA_VERSION = 1;
 
 export interface Character {
@@ -145,6 +172,12 @@ export interface Character {
   notes: string;
 
   bonuses: Bonus[];
+
+  beastForms: BeastForm[];
+  /** id облика, в котором персонаж сейчас находится; undefined — обычный облик. */
+  activeBeastFormId?: string;
+  /** Ресурс, из которого списывается одно использование при превращении. */
+  beastFormResourceId?: string;
 }
 
 export interface CharacterSummary {

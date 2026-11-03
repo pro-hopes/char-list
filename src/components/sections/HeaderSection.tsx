@@ -2,6 +2,7 @@ import { ColorPicker } from '../common/ColorPicker';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
 import { sanitizeNumberInputEvent } from '../../utils/numberInput';
+import { BeastFormsEditor } from './BeastFormsEditor';
 import styles from './HeaderSection.module.css';
 
 export function HeaderSection({ character }: { character: Character }) {
@@ -63,15 +64,8 @@ export function HeaderSection({ character }: { character: Character }) {
             onChange={(e) => updateMeta(character.id, { faction: e.target.value })}
           />
         </div>
-        <div className={styles.field}>
-          <label htmlFor="meta-background">Предыстория</label>
-          <input
-            id="meta-background"
-            value={character.meta.background}
-            onChange={(e) => updateMeta(character.id, { background: e.target.value })}
-          />
-        </div>
       </div>
+      <BeastFormsEditor character={character} />
     </div>
   );
 }

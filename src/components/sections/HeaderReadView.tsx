@@ -16,7 +16,6 @@ export function HeaderReadView({ character }: { character: Character }) {
           {subtitle} · Уровень {character.meta.level}
         </p>
         {meta && <p className={styles.meta}>{meta}</p>}
-        {character.meta.background && <p className={styles.background}>{character.meta.background}</p>}
       </div>
     </div>
   );

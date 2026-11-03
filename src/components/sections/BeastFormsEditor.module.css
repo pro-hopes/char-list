@@ -1,0 +1,103 @@
+.wrapper {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.title {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  margin: 12px 0 4px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.hint {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.numberField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.numberField span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.numberField input {
+  width: 100%;
+  min-width: 56px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.row > .numberField:not(.grow) {
+  width: 84px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 120px;
+}
+
+.smallInput {
+  width: 64px;
+  text-align: center;
+}
+
+.attack {
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.linkButton {
+  border: none;
+  background: none;
+  color: var(--accent);
+  padding: 2px 0;
+  font-weight: 600;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+.resourceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}

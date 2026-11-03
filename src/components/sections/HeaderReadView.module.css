@@ -30,9 +30,3 @@
   font-size: 0.9rem;
 }
 
-.background {
-  margin: 8px 0 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  white-space: pre-wrap;
-}

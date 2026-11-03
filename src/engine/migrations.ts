@@ -1,7 +1,11 @@
 import {
   ABILITY_KEYS,
   ABILITY_LABELS,
+  BEAST_ABILITY_KEYS,
   CURRENT_SCHEMA_VERSION,
+  type Attack,
+  type BeastForm,
+  type BeastSkill,
   type Cantrip,
   type Character,
   type EquipmentItem,
@@ -78,6 +82,55 @@ function ensureStatField(value: unknown, fallbackLabel: string): StatField {
   };
 }
 
+function asNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function ensureBeastAttack(value: unknown): Attack {
+  const obj = asRecord(value);
+  return {
+    id: typeof obj.id === 'string' ? obj.id : newId(),
+    name: typeof obj.name === 'string' ? obj.name : '',
+    attackBonus: ensureStatField(obj.attackBonus, 'Бонус атаки'),
+    damageDice: typeof obj.damageDice === 'string' ? obj.damageDice : '',
+    damageBonus: ensureStatField(obj.damageBonus, 'Урон'),
+    damageType: typeof obj.damageType === 'string' ? obj.damageType : '',
+    notes: typeof obj.notes === 'string' ? obj.notes : undefined,
+    icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+  };
+}
+
+function ensureBeastSkill(value: unknown): BeastSkill | undefined {
+  const obj = asRecord(value);
+  if (typeof obj.skillId !== 'string') return undefined;
+  return { skillId: obj.skillId, value: asNumber(obj.value, 0) };
+}
+
+function ensureBeastForm(value: unknown): BeastForm {
+  const obj = asRecord(value);
+  const abilitiesSrc = asRecord(obj.abilities);
+  const abilities = {} as BeastForm['abilities'];
+  for (const key of BEAST_ABILITY_KEYS) {
+    abilities[key] = asNumber(abilitiesSrc[key], 10);
+  }
+  const hpMax = Math.max(1, asNumber(obj.hpMax, 1));
+  return {
+    id: typeof obj.id === 'string' ? obj.id : newId(),
+    name: typeof obj.name === 'string' ? obj.name : 'Облик',
+    icon: typeof obj.icon === 'string' ? obj.icon : undefined,
+    abilities,
+    ac: asNumber(obj.ac, 10),
+    speed: asNumber(obj.speed, 30),
+    hpMax,
+    hpCurrent: Math.min(hpMax, Math.max(0, asNumber(obj.hpCurrent, hpMax))),
+    skills: Array.isArray(obj.skills)
+      ? obj.skills.map(ensureBeastSkill).filter((s): s is BeastSkill => s !== undefined)
+      : [],
+    attacks: Array.isArray(obj.attacks) ? obj.attacks.map(ensureBeastAttack) : [],
+    notes: typeof obj.notes === 'string' ? obj.notes : '',
+  };
+}
+
 /**
  * Приводит произвольный JSON (из буфера обмена, share-ссылки, старой версии схемы)
  * к валидному Character — дозаполняя отсутствующие секции значениями по умолчанию.
@@ -134,7 +187,16 @@ export function migrateCharacter(raw: unknown): Character {
       typeof src.proficienciesAndLanguages === 'string' ? src.proficienciesAndLanguages : '',
     notes: typeof src.notes === 'string' ? src.notes : '',
     bonuses: Array.isArray(src.bonuses) ? (src.bonuses as Character['bonuses']) : [],
+    beastForms: Array.isArray(src.beastForms) ? src.beastForms.map(ensureBeastForm) : [],
   };
+
+  // ссылки на облик/ресурс сохраняем, только если они указывают на существующие объекты
+  if (typeof src.activeBeastFormId === 'string' && character.beastForms.some((f) => f.id === src.activeBeastFormId)) {
+    character.activeBeastFormId = src.activeBeastFormId;
+  }
+  if (typeof src.beastFormResourceId === 'string' && character.resources.some((r) => r.id === src.beastFormResourceId)) {
+    character.beastFormResourceId = src.beastFormResourceId;
+  }
 
   syncBonusIds(character);
   return character;

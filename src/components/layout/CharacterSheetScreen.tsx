@@ -1,6 +1,7 @@
 import { ArrowLeft, Backpack, ClipboardCopy, Link as LinkIcon } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useState } from 'react';
+import { getBeastFormView } from '../../engine/beastForm';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
@@ -12,6 +13,8 @@ import { AbilitiesReadView } from '../sections/AbilitiesReadView';
 import { AbilitiesSection } from '../sections/AbilitiesSection';
 import { AttacksReadView } from '../sections/AttacksReadView';
 import { AttacksSection } from '../sections/AttacksSection';
+import { BackgroundReadView } from '../sections/BackgroundReadView';
+import { BackgroundSection } from '../sections/BackgroundSection';
 import { CombatReadView } from '../sections/CombatReadView';
 import { CombatSection } from '../sections/CombatSection';
 import { EquipmentReadView } from '../sections/EquipmentReadView';
@@ -34,6 +37,8 @@ import { SpellcastingReadView } from '../sections/SpellcastingReadView';
 import { SpellcastingSection } from '../sections/SpellcastingSection';
 import { AccordionSection } from './AccordionSection';
 import { AsideBonusPanel } from './AsideBonusPanel';
+import { BeastFormContext } from './BeastFormContext';
+import { BeastFormSwitcher } from './BeastFormSwitcher';
 import { BonusDrawer } from './BonusDrawer';
 import styles from './CharacterSheetScreen.module.css';
 
@@ -54,6 +59,7 @@ const SECTION_TITLES: Record<string, string> = {
   features: 'Способности',
   equipment: 'Снаряжение',
   proficiencies: 'Владения и языки',
+  background: 'Предыстория',
   notes: 'Заметки',
 };
 
@@ -67,6 +73,9 @@ export function CharacterSheetScreen({ character }: { character: Character }) {
   const [bonusTarget, setBonusTarget] = useState<BonusTarget | null>(null);
   const onAddBonus = (fieldId: string, label: string) => setBonusTarget({ fieldId, label });
   const [editingSection, setEditingSection] = useState<string | null>(null);
+  // read-view секции показывают персонажа в текущем облике; окна редактирования — исходного
+  const beastFormView = getBeastFormView(character);
+  const sheet = beastFormView.character;
 
   return (
     <div className={styles.wrapper} style={{ '--accent': character.themeColor } as CSSProperties}>
@@ -84,97 +93,105 @@ export function CharacterSheetScreen({ character }: { character: Character }) {
           </button>
         </div>
 
-        <AccordionSection id="header" title="Персонаж" actions={<GearButton onClick={() => setEditingSection('header')} />}>
-          <HeaderReadView character={character} />
-        </AccordionSection>
+        <BeastFormSwitcher character={character} />
 
-        <AccordionSection
-          id="abilities"
-          title="Характеристики"
-          actions={
-            <>
-              <SectionInfoButton infoKey="section-abilities" />
-              <GearButton onClick={() => setEditingSection('abilities')} />
-            </>
-          }
-        >
-          <AbilitiesReadView character={character} />
-        </AccordionSection>
+        <BeastFormContext.Provider value={beastFormView}>
+          <AccordionSection id="header" title="Персонаж" actions={<GearButton onClick={() => setEditingSection('header')} />}>
+            <HeaderReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection id="combat" title="Боевые параметры" actions={<GearButton onClick={() => setEditingSection('combat')} />}>
-          <CombatReadView character={character} />
-        </AccordionSection>
+          <AccordionSection
+            id="abilities"
+            title="Характеристики"
+            actions={
+              <>
+                <SectionInfoButton infoKey="section-abilities" />
+                <GearButton onClick={() => setEditingSection('abilities')} />
+              </>
+            }
+          >
+            <AbilitiesReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection
-          id="saves"
-          title="Спасброски"
-          actions={
-            <>
-              <SectionInfoButton infoKey="section-saves" />
-              <GearButton onClick={() => setEditingSection('saves')} />
-            </>
-          }
-        >
-          <SavingThrowsReadView character={character} />
-        </AccordionSection>
+          <AccordionSection id="combat" title="Боевые параметры" actions={<GearButton onClick={() => setEditingSection('combat')} />}>
+            <CombatReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection
-          id="skills"
-          title="Навыки"
-          actions={
-            <>
-              <SectionInfoButton infoKey="section-skills" />
-              <GearButton onClick={() => setEditingSection('skills')} />
-            </>
-          }
-        >
-          <SkillsReadView character={character} />
-        </AccordionSection>
+          <AccordionSection
+            id="saves"
+            title="Спасброски"
+            actions={
+              <>
+                <SectionInfoButton infoKey="section-saves" />
+                <GearButton onClick={() => setEditingSection('saves')} />
+              </>
+            }
+          >
+            <SavingThrowsReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection id="attacks" title="Атаки / оружие" actions={<GearButton onClick={() => setEditingSection('attacks')} />}>
-          <AttacksReadView character={character} />
-        </AccordionSection>
+          <AccordionSection
+            id="skills"
+            title="Навыки"
+            actions={
+              <>
+                <SectionInfoButton infoKey="section-skills" />
+                <GearButton onClick={() => setEditingSection('skills')} />
+              </>
+            }
+          >
+            <SkillsReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection id="spellcasting" title="Заклинания" actions={<GearButton onClick={() => setEditingSection('spellcasting')} />}>
-          <SpellcastingReadView character={character} />
-        </AccordionSection>
+          <AccordionSection id="attacks" title="Атаки / оружие" actions={<GearButton onClick={() => setEditingSection('attacks')} />}>
+            <AttacksReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection
-          id="resources"
-          title="Ресурсы"
-          actions={
-            <>
-              <SectionInfoButton infoKey="section-resources" />
-              <GearButton onClick={() => setEditingSection('resources')} />
-            </>
-          }
-        >
-          <ResourcesReadView character={character} />
-        </AccordionSection>
+          <AccordionSection id="spellcasting" title="Заклинания" actions={<GearButton onClick={() => setEditingSection('spellcasting')} />}>
+            <SpellcastingReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection id="features" title="Способности" actions={<GearButton onClick={() => setEditingSection('features')} />}>
-          <FeaturesReadView character={character} />
-        </AccordionSection>
+          <AccordionSection
+            id="resources"
+            title="Ресурсы"
+            actions={
+              <>
+                <SectionInfoButton infoKey="section-resources" />
+                <GearButton onClick={() => setEditingSection('resources')} />
+              </>
+            }
+          >
+            <ResourcesReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection
-          id="equipment"
-          title="Снаряжение"
-          actions={<GearButton icon={Backpack} label="Открыть рюкзак" onClick={() => setEditingSection('equipment')} />}
-        >
-          <EquipmentReadView character={character} />
-        </AccordionSection>
+          <AccordionSection id="features" title="Способности" actions={<GearButton onClick={() => setEditingSection('features')} />}>
+            <FeaturesReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection
-          id="proficiencies"
-          title="Владения и языки"
-          actions={<GearButton onClick={() => setEditingSection('proficiencies')} />}
-        >
-          <ProficienciesLanguagesReadView character={character} />
-        </AccordionSection>
+          <AccordionSection
+            id="equipment"
+            title="Снаряжение"
+            actions={<GearButton icon={Backpack} label="Открыть рюкзак" onClick={() => setEditingSection('equipment')} />}
+          >
+            <EquipmentReadView character={sheet} />
+          </AccordionSection>
 
-        <AccordionSection id="notes" title="Заметки" actions={<GearButton onClick={() => setEditingSection('notes')} />}>
-          <NotesReadView character={character} />
-        </AccordionSection>
+          <AccordionSection
+            id="proficiencies"
+            title="Владения и языки"
+            actions={<GearButton onClick={() => setEditingSection('proficiencies')} />}
+          >
+            <ProficienciesLanguagesReadView character={sheet} />
+          </AccordionSection>
+
+          <AccordionSection id="background" title="Предыстория" actions={<GearButton onClick={() => setEditingSection('background')} />}>
+            <BackgroundReadView character={sheet} />
+          </AccordionSection>
+
+          <AccordionSection id="notes" title="Заметки" actions={<GearButton onClick={() => setEditingSection('notes')} />}>
+            <NotesReadView character={sheet} />
+          </AccordionSection>
+        </BeastFormContext.Provider>
       </div>
 
       {isDesktop ? <AsideBonusPanel character={character} /> : <BonusDrawer character={character} />}
@@ -200,6 +217,7 @@ export function CharacterSheetScreen({ character }: { character: Character }) {
           {editingSection === 'features' && <FeaturesSection character={character} />}
           {editingSection === 'equipment' && <EquipmentSection character={character} />}
           {editingSection === 'proficiencies' && <ProficienciesLanguagesSection character={character} />}
+          {editingSection === 'background' && <BackgroundSection character={character} />}
           {editingSection === 'notes' && <NotesSection character={character} />}
         </Modal>
       )}

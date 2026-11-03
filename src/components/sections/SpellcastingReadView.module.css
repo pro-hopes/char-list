@@ -35,16 +35,27 @@
   gap: 8px;
 }
 
+.itemTitle {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .itemLevel {
+  flex-shrink: 0;
+  white-space: nowrap;
   font-weight: normal;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  padding: 1px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
 }
 
 .expandButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   margin-left: auto;
   padding: 2px;
   border: none;
@@ -70,6 +81,16 @@
   accent-color: var(--accent);
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+.formWarning {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-raised);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .empty {

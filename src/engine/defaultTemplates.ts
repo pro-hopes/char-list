@@ -1,4 +1,13 @@
-import { ABILITY_KEYS, CURRENT_SCHEMA_VERSION, type AbilityKey, type Character, type SkillField, type StatField } from '../types/character';
+import {
+  ABILITY_KEYS,
+  CURRENT_SCHEMA_VERSION,
+  type AbilityKey,
+  type Attack,
+  type BeastForm,
+  type Character,
+  type SkillField,
+  type StatField,
+} from '../types/character';
 import { newId } from '../utils/id';
 
 const DEFAULT_THEME_COLORS = ['#7A1F1F', '#1F4E7A', '#1F7A3D', '#6A1F7A', '#7A5A1F', '#1F7A72'];
@@ -96,5 +105,32 @@ export function createDefaultCharacter(name = 'Новый персонаж'): Ch
     proficienciesAndLanguages: '',
     notes: '',
     bonuses: [],
+    beastForms: [],
+  };
+}
+
+export function createDefaultBeastForm(): BeastForm {
+  return {
+    id: newId(),
+    name: 'Новый облик',
+    abilities: { STR: 10, DEX: 10, CON: 10 },
+    ac: 10,
+    speed: 30,
+    hpMax: 10,
+    hpCurrent: 10,
+    skills: [],
+    attacks: [],
+    notes: '',
+  };
+}
+
+export function createEmptyAttack(): Attack {
+  return {
+    id: newId(),
+    name: 'Новая атака',
+    attackBonus: { id: newId(), label: 'Бонус атаки', baseValue: 0, bonusIds: [] },
+    damageDice: '1к6',
+    damageBonus: { id: newId(), label: 'Урон', baseValue: 0, bonusIds: [] },
+    damageType: '',
   };
 }

@@ -46,3 +46,48 @@
 .stepButton:hover {
   border-color: var(--accent);
 }
+
+.formHp {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.formHpValue {
+  min-width: 64px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.formHpActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepButtonWide {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  padding: 6px 10px;
+}
+
+.stepButtonWide:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.stepButtonWide:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ownHp {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
