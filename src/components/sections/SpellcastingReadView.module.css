@@ -41,6 +41,23 @@
   font-size: 0.85rem;
 }
 
+.expandButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.expandButton:hover {
+  color: var(--text-secondary);
+}
+
 .itemDescription {
   font-size: 0.9rem;
   color: var(--text-secondary);
