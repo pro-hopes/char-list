@@ -8,5 +8,5 @@ export const EQUIPMENT_ICON_FILES: string[] = Array.from(
 );
 
 export function resolveIconUrl(icon: string): string {
-  return `${import.meta.env.BASE_URL}icons/all_icons/${icon}`;
+  return `/icons/all_icons/${icon}`;
 }
