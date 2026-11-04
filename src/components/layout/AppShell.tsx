@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import { ImportPreviewModal } from '../common/ImportPreviewModal';
