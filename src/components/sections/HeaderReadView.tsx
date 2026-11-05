@@ -1,4 +1,5 @@
 import type { Character } from '../../types/character';
+import { Portrait } from '../portrait/Portrait';
 import styles from './HeaderReadView.module.css';
 
 export function HeaderReadView({ character }: { character: Character }) {
@@ -10,6 +11,7 @@ export function HeaderReadView({ character }: { character: Character }) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.colorBar} style={{ background: character.themeColor }} />
+      {character.portraitPath && <Portrait path={character.portraitPath} size={72} alt={character.name} />}
       <div className={styles.body}>
         <h2 className={styles.name}>{character.name}</h2>
         <p className={styles.subtitle}>

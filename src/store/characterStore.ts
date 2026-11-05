@@ -32,6 +32,11 @@ import type { PendingImportSource, UiState } from '../types/store';
 import { copyToClipboard, readFromClipboard } from '../utils/clipboard';
 import { newId } from '../utils/id';
 import { fetchCharacters, type RemoteCharacter } from '../lib/characters/remote';
+import {
+  copyPortrait as copyPortraitFile,
+  deletePortrait as deletePortraitFile,
+  uploadPortrait as uploadPortraitFile,
+} from '../lib/characters/portraits';
 import { CharacterSync } from '../lib/characters/sync';
 import { createClient } from '../lib/supabase/client';
 
@@ -67,6 +72,7 @@ function toSummary(character: Character): CharacterSummary {
     race: character.meta.race,
     className: character.meta.className,
     themeColor: character.themeColor,
+    portraitPath: character.portraitPath,
   };
 }
 
@@ -155,6 +161,10 @@ interface AppActions {
   updateProficienciesAndLanguages(id: string, text: string): void;
   updateNotes(id: string, text: string): void;
 
+  /** Resize, upload to Storage and replace the current portrait (old file is deleted). */
+  uploadPortrait(id: string, file: File): Promise<void>;
+  removePortrait(id: string): void;
+
   copyCharacterJson(id: string): Promise<void>;
   importFromClipboard(): Promise<void>;
   shareCharacterLink(id: string): Promise<void>;
@@ -213,6 +223,17 @@ export const useCharacterStore = create<Store>()(
       });
       const added = get().characters[character.id];
       if (added) sync.saveNow(added);
+    }
+
+    /** Copy a portrait file for a duplicated/imported character, then link it once the copy exists. */
+    function copyPortraitTo(id: string, sourcePath: string) {
+      void copyPortraitFile(sourcePath, id).then((path) => {
+        if (path && get().characters[id]) {
+          mutateCharacter(id, (character) => {
+            character.portraitPath = path;
+          });
+        }
+      });
     }
 
     function removeCharacterFromState(id: string) {
@@ -310,8 +331,33 @@ export const useCharacterStore = create<Store>()(
         const clone = structuredClone(source);
         clone.id = newId();
         clone.name = `${source.name} (копия)`;
+        // Each character owns its own file, so deleting one portrait never breaks another.
+        delete clone.portraitPath;
         addCharacterToState(clone);
+        if (source.portraitPath) copyPortraitTo(clone.id, source.portraitPath);
         return clone.id;
+      },
+
+      async uploadPortrait(id, file) {
+        const oldPath = get().characters[id]?.portraitPath;
+        try {
+          const path = await uploadPortraitFile(id, file);
+          mutateCharacter(id, (character) => {
+            character.portraitPath = path;
+          });
+          if (oldPath) void deletePortraitFile(oldPath);
+        } catch (error) {
+          get().showToast(error instanceof Error ? error.message : 'Не удалось загрузить портрет', 'error');
+        }
+      },
+
+      removePortrait(id) {
+        const oldPath = get().characters[id]?.portraitPath;
+        if (!oldPath) return;
+        mutateCharacter(id, (character) => {
+          delete character.portraitPath;
+        });
+        void deletePortraitFile(oldPath);
       },
 
       renameCharacter(id, name) {
@@ -826,6 +872,8 @@ export const useCharacterStore = create<Store>()(
         const character = structuredClone(pending.character);
         character.id = newId();
         if (mode === 'rename' && newName) character.name = newName;
+        const sourcePortrait = character.portraitPath;
+        delete character.portraitPath;
 
         if (mode === 'overwrite' && pending.conflictId) {
           // Soft delete: the overwritten character can still be recovered from the database.
@@ -834,6 +882,7 @@ export const useCharacterStore = create<Store>()(
         }
 
         addCharacterToState(character);
+        if (sourcePortrait) copyPortraitTo(character.id, sourcePortrait);
         set((state) => {
           state.ui.pendingImport = null;
         });

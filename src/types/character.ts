@@ -182,6 +182,8 @@ export interface Character {
   name: string;
   meta: CharacterMeta;
   themeColor: string;
+  /** Путь к портрету в Supabase Storage (bucket `portraits`): `<userId>/<characterId>/<uuid>.webp`. */
+  portraitPath?: string;
 
   abilities: Record<AbilityKey, StatField>;
   combat: CombatBlock;
@@ -211,4 +213,5 @@ export interface CharacterSummary {
   race: string;
   className: string;
   themeColor: string;
+  portraitPath?: string;
 }

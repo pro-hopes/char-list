@@ -61,3 +61,16 @@ describe('migrateCharacter: заклинания', () => {
     expect(migrated.spellcasting?.slots[0]).toEqual({ max: 2, used: 2 });
   });
 });
+
+describe('migrateCharacter: портрет', () => {
+  it('путь к портрету переживает сохранение и загрузку', () => {
+    const path = 'user-1/char-1/abc.webp';
+    expect(migrateCharacter({ ...helgaJson, portraitPath: path }).portraitPath).toBe(path);
+  });
+
+  it('без портрета или с мусором вместо пути поля нет', () => {
+    expect(migrateCharacter(helgaJson).portraitPath).toBeUndefined();
+    expect(migrateCharacter({ ...helgaJson, portraitPath: 42 }).portraitPath).toBeUndefined();
+    expect(migrateCharacter({ ...helgaJson, portraitPath: '' }).portraitPath).toBeUndefined();
+  });
+});

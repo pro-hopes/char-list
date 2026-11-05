@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
 import { AccountBar } from '../auth/AccountBar';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { Portrait } from '../portrait/Portrait';
 import styles from './CharacterListScreen.module.css';
 
 export function CharacterListScreen() {
@@ -42,6 +43,7 @@ export function CharacterListScreen() {
             style={{ borderLeftColor: summary.themeColor }}
             onClick={() => setActiveCharacter(summary.id)}
           >
+            <Portrait path={summary.portraitPath} size={44} />
             <div className={styles.cardInfo}>
               {renamingId === summary.id ? (
                 <input
