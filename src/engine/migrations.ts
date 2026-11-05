@@ -226,6 +226,9 @@ export function migrateCharacter(raw: unknown): Character {
   if (typeof src.beastFormResourceId === 'string' && character.resources.some((r) => r.id === src.beastFormResourceId)) {
     character.beastFormResourceId = src.beastFormResourceId;
   }
+  if (typeof src.portraitPath === 'string' && src.portraitPath) {
+    character.portraitPath = src.portraitPath;
+  }
 
   syncBonusIds(character);
   return character;

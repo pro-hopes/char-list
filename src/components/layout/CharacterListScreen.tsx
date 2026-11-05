@@ -1,7 +1,9 @@
 import { ClipboardPaste, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
+import { AccountBar } from '../auth/AccountBar';
 import { ConfirmDialog } from '../common/ConfirmDialog';
+import { Portrait } from '../portrait/Portrait';
 import styles from './CharacterListScreen.module.css';
 
 export function CharacterListScreen() {
@@ -19,6 +21,7 @@ export function CharacterListScreen() {
 
   return (
     <div className={styles.wrapper}>
+      <AccountBar />
       <h1 className={styles.title}>Персонажи</h1>
 
       <div className={styles.toolbar}>
@@ -40,6 +43,7 @@ export function CharacterListScreen() {
             style={{ borderLeftColor: summary.themeColor }}
             onClick={() => setActiveCharacter(summary.id)}
           >
+            <Portrait path={summary.portraitPath} size={44} />
             <div className={styles.cardInfo}>
               {renamingId === summary.id ? (
                 <input

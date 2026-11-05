@@ -1,0 +1,77 @@
+.discordButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: #5865f2;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.discordButton:hover {
+  filter: brightness(1.1);
+}
+
+.discordButton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  margin-bottom: 16px;
+}
+
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.userName {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-raised);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.barButton:hover {
+  border-color: var(--accent);
+}

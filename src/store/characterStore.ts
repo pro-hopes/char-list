@@ -31,20 +31,55 @@ import type {
 import type { PendingImportSource, UiState } from '../types/store';
 import { copyToClipboard, readFromClipboard } from '../utils/clipboard';
 import { newId } from '../utils/id';
+import { fetchCharacters, type RemoteCharacter } from '../lib/characters/remote';
 import {
-  deleteCharacterStorage,
-  flushIndexPersist,
-  flushPersist,
-  loadCharacter,
-  loadIndex,
-  schedulePersist,
-  scheduleIndexPersist,
-} from './persistence';
+  copyPortrait as copyPortraitFile,
+  deletePortrait as deletePortraitFile,
+  uploadPortrait as uploadPortraitFile,
+} from '../lib/characters/portraits';
+import { CharacterSync } from '../lib/characters/sync';
+import { createClient } from '../lib/supabase/client';
 
 let toastCounter = 0;
+let hydrating: Promise<void> | null = null;
+
+// Callbacks run after the store exists (only on network results), so referencing it here is safe.
+const sync = new CharacterSync({
+  onConflict(id, fresh) {
+    useCharacterStore.getState().applyRemoteCharacter(id, fresh);
+  },
+  onRejected(id, message) {
+    const name = useCharacterStore.getState().characters[id]?.name;
+    console.error('character save rejected', id, message);
+    useCharacterStore
+      .getState()
+      .showToast(`Не удалось сохранить${name ? ` «${name}»` : ''}: данные отклонены сервером`, 'error');
+  },
+  onConnectionChange(offline) {
+    useCharacterStore
+      .getState()
+      .showToast(
+        offline ? 'Нет связи с сервером — изменения сохранятся, когда связь появится' : 'Связь восстановлена, изменения сохранены',
+        offline ? 'error' : 'info',
+      );
+  },
+});
+
+function toSummary(character: Character): CharacterSummary {
+  return {
+    id: character.id,
+    name: character.name,
+    race: character.meta.race,
+    className: character.meta.className,
+    themeColor: character.themeColor,
+    portraitPath: character.portraitPath,
+  };
+}
 
 interface AppState {
   hydrated: boolean;
+  /** Loading from the database failed; the UI shows it with a retry button. */
+  loadError: string | null;
   characterIndex: CharacterSummary[];
   characters: Record<string, Character>;
   activeCharacterId: string | null;
@@ -52,7 +87,9 @@ interface AppState {
 }
 
 interface AppActions {
-  hydrate(): void;
+  hydrate(): Promise<void>;
+  /** Replace a character with the server copy after a conflict (null = deleted elsewhere). */
+  applyRemoteCharacter(id: string, remote: RemoteCharacter | null): void;
 
   createCharacter(): string;
   duplicateCharacter(id: string): string;
@@ -124,6 +161,10 @@ interface AppActions {
   updateProficienciesAndLanguages(id: string, text: string): void;
   updateNotes(id: string, text: string): void;
 
+  /** Resize, upload to Storage and replace the current portrait (old file is deleted). */
+  uploadPortrait(id: string, file: File): Promise<void>;
+  removePortrait(id: string): void;
+
   copyCharacterJson(id: string): Promise<void>;
   importFromClipboard(): Promise<void>;
   shareCharacterLink(id: string): Promise<void>;
@@ -161,18 +202,10 @@ export const useCharacterStore = create<Store>()(
         if (!character) return;
         updater(character);
         const idx = state.characterIndex.findIndex((c) => c.id === id);
-        const summary: CharacterSummary = {
-          id: character.id,
-          name: character.name,
-          race: character.meta.race,
-          className: character.meta.className,
-          themeColor: character.themeColor,
-        };
-        if (idx >= 0) state.characterIndex[idx] = summary;
+        if (idx >= 0) state.characterIndex[idx] = toSummary(character);
       });
       const character = get().characters[id];
-      if (character) schedulePersist(id, character);
-      scheduleIndexPersist(get().characterIndex);
+      if (character) sync.save(character);
     }
 
     function mutateBonus(id: string, updater: (character: Character) => void) {
@@ -185,32 +218,56 @@ export const useCharacterStore = create<Store>()(
     function addCharacterToState(character: Character) {
       set((state) => {
         state.characters[character.id] = character;
-        state.characterIndex.push({
-          id: character.id,
-          name: character.name,
-          race: character.meta.race,
-          className: character.meta.className,
-          themeColor: character.themeColor,
-        });
+        state.characterIndex.push(toSummary(character));
         state.activeCharacterId = character.id;
       });
-      schedulePersist(character.id, character);
-      scheduleIndexPersist(get().characterIndex);
+      const added = get().characters[character.id];
+      if (added) sync.saveNow(added);
     }
 
-    return {
-      hydrated: false,
-      characterIndex: [],
-      characters: {},
-      activeCharacterId: null,
-      ui: { asideOpen: false, collapsedSections: {}, pendingImport: null, toast: null },
+    /** Copy a portrait file for a duplicated/imported character, then link it once the copy exists. */
+    function copyPortraitTo(id: string, sourcePath: string) {
+      void copyPortraitFile(sourcePath, id).then((path) => {
+        if (path && get().characters[id]) {
+          mutateCharacter(id, (character) => {
+            character.portraitPath = path;
+          });
+        }
+      });
+    }
 
-      hydrate() {
-        const index = loadIndex();
+    function removeCharacterFromState(id: string) {
+      set((state) => {
+        delete state.characters[id];
+        state.characterIndex = state.characterIndex.filter((c) => c.id !== id);
+        if (state.activeCharacterId === id) {
+          state.activeCharacterId = state.characterIndex[0]?.id ?? null;
+        }
+      });
+    }
+
+    async function loadFromDatabase() {
+      set((state) => {
+        state.loadError = null;
+      });
+      try {
+        const {
+          data: { session },
+        } = await createClient().auth.getSession();
+        if (!session) {
+          window.location.assign('/login');
+          return;
+        }
+        const remote = await fetchCharacters();
+        const { rows } = sync.start(session.user.id, remote);
+
         const characters: Record<string, Character> = {};
-        for (const summary of index) {
-          const loaded = loadCharacter(summary.id);
-          if (loaded) characters[summary.id] = migrateCharacter(loaded);
+        const index: CharacterSummary[] = [];
+        for (const row of rows) {
+          const character = migrateCharacter(row.data);
+          character.id = row.id;
+          characters[row.id] = character;
+          index.push(toSummary(character));
         }
         set((state) => {
           state.characterIndex = index;
@@ -219,6 +276,47 @@ export const useCharacterStore = create<Store>()(
           state.hydrated = true;
         });
         get().checkShareHashOnLoad();
+      } catch (error) {
+        console.error('failed to load characters', error);
+        set((state) => {
+          state.loadError = 'Не удалось загрузить персонажей. Проверьте соединение и попробуйте ещё раз.';
+        });
+      }
+    }
+
+    return {
+      hydrated: false,
+      loadError: null,
+      characterIndex: [],
+      characters: {},
+      activeCharacterId: null,
+      ui: { asideOpen: false, collapsedSections: {}, pendingImport: null, toast: null },
+
+      hydrate() {
+        // Guard against double calls (React Strict Mode runs effects twice in dev).
+        if (get().hydrated) return Promise.resolve();
+        hydrating ??= loadFromDatabase().finally(() => {
+          hydrating = null;
+        });
+        return hydrating;
+      },
+
+      applyRemoteCharacter(id, remote) {
+        const localName = get().characters[id]?.name;
+        if (!remote) {
+          removeCharacterFromState(id);
+          if (localName) get().showToast(`Персонаж «${localName}» удалён на другом устройстве`, 'error');
+          return;
+        }
+        const character = migrateCharacter(remote.data);
+        character.id = id;
+        set((state) => {
+          state.characters[id] = character;
+          const idx = state.characterIndex.findIndex((c) => c.id === id);
+          if (idx >= 0) state.characterIndex[idx] = toSummary(character);
+          else state.characterIndex.push(toSummary(character));
+        });
+        get().showToast(`«${character.name}» изменён на другом устройстве — загружена актуальная версия`, 'error');
       },
 
       createCharacter() {
@@ -233,8 +331,33 @@ export const useCharacterStore = create<Store>()(
         const clone = structuredClone(source);
         clone.id = newId();
         clone.name = `${source.name} (копия)`;
+        // Each character owns its own file, so deleting one portrait never breaks another.
+        delete clone.portraitPath;
         addCharacterToState(clone);
+        if (source.portraitPath) copyPortraitTo(clone.id, source.portraitPath);
         return clone.id;
+      },
+
+      async uploadPortrait(id, file) {
+        const oldPath = get().characters[id]?.portraitPath;
+        try {
+          const path = await uploadPortraitFile(id, file);
+          mutateCharacter(id, (character) => {
+            character.portraitPath = path;
+          });
+          if (oldPath) void deletePortraitFile(oldPath);
+        } catch (error) {
+          get().showToast(error instanceof Error ? error.message : 'Не удалось загрузить портрет', 'error');
+        }
+      },
+
+      removePortrait(id) {
+        const oldPath = get().characters[id]?.portraitPath;
+        if (!oldPath) return;
+        mutateCharacter(id, (character) => {
+          delete character.portraitPath;
+        });
+        void deletePortraitFile(oldPath);
       },
 
       renameCharacter(id, name) {
@@ -244,15 +367,8 @@ export const useCharacterStore = create<Store>()(
       },
 
       deleteCharacter(id) {
-        set((state) => {
-          delete state.characters[id];
-          state.characterIndex = state.characterIndex.filter((c) => c.id !== id);
-          if (state.activeCharacterId === id) {
-            state.activeCharacterId = state.characterIndex[0]?.id ?? null;
-          }
-        });
-        deleteCharacterStorage(id);
-        scheduleIndexPersist(get().characterIndex);
+        removeCharacterFromState(id);
+        sync.remove(id);
       },
 
       setActiveCharacter(id) {
@@ -705,7 +821,6 @@ export const useCharacterStore = create<Store>()(
       async copyCharacterJson(id) {
         const character = get().characters[id];
         if (!character) return;
-        flushPersist(id);
         const ok = await copyToClipboard(JSON.stringify(character, null, 2));
         get().showToast(ok ? 'JSON персонажа скопирован в буфер' : 'Не удалось скопировать в буфер', ok ? 'info' : 'error');
       },
@@ -730,7 +845,6 @@ export const useCharacterStore = create<Store>()(
       async shareCharacterLink(id) {
         const character = get().characters[id];
         if (!character) return;
-        flushPersist(id);
         const url = buildShareUrl(character);
         const ok = await copyToClipboard(url);
         get().showToast(ok ? 'Ссылка скопирована в буфер' : 'Не удалось скопировать ссылку', ok ? 'info' : 'error');
@@ -758,17 +872,17 @@ export const useCharacterStore = create<Store>()(
         const character = structuredClone(pending.character);
         character.id = newId();
         if (mode === 'rename' && newName) character.name = newName;
+        const sourcePortrait = character.portraitPath;
+        delete character.portraitPath;
 
         if (mode === 'overwrite' && pending.conflictId) {
-          const conflictId = pending.conflictId;
-          set((state) => {
-            delete state.characters[conflictId];
-            state.characterIndex = state.characterIndex.filter((c) => c.id !== conflictId);
-          });
-          deleteCharacterStorage(conflictId);
+          // Soft delete: the overwritten character can still be recovered from the database.
+          removeCharacterFromState(pending.conflictId);
+          sync.remove(pending.conflictId);
         }
 
         addCharacterToState(character);
+        if (sourcePortrait) copyPortraitTo(character.id, sourcePortrait);
         set((state) => {
           state.ui.pendingImport = null;
         });
@@ -812,16 +926,11 @@ export const useCharacterStore = create<Store>()(
   }),
 );
 
-function flushAll() {
-  for (const id of Object.keys(useCharacterStore.getState().characters)) {
-    flushPersist(id);
-  }
-  flushIndexPersist();
-}
-
+// Save immediately when the app goes to the background: mobile OSes kill hidden PWAs without warning.
+// Anything that doesn't make it stays in the outbox and is sent on the next launch.
 if (typeof window !== 'undefined') {
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') flushAll();
+    if (document.visibilityState === 'hidden') sync.flushAll();
   });
-  window.addEventListener('beforeunload', flushAll);
+  window.addEventListener('pagehide', () => sync.flushAll());
 }

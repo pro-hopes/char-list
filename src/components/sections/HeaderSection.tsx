@@ -1,5 +1,6 @@
 import { ColorPicker } from '../common/ColorPicker';
 import { NumberInput } from '../common/NumberInput';
+import { PortraitPicker } from '../portrait/PortraitPicker';
 import { useCharacterStore } from '../../store/characterStore';
 import type { Character } from '../../types/character';
 import { BeastFormsEditor } from './BeastFormsEditor';
@@ -12,6 +13,7 @@ export function HeaderSection({ character }: { character: Character }) {
 
   return (
     <div>
+      <PortraitPicker character={character} />
       <div className={styles.nameRow}>
         <input
           className={styles.nameInput}
