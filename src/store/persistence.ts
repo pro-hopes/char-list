@@ -1,3 +1,5 @@
+// LEGACY: characters are now stored in Supabase (src/lib/characters). Nothing writes here anymore;
+// kept only to read players' pre-login characters from localStorage for the migration (stage 4 in docs/ПЛАН.md).
 import type { Character, CharacterSummary } from '../types/character';
 
 const INDEX_KEY = 'dnd-sheets:index';
