@@ -1,6 +1,7 @@
 import { ClipboardPaste, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useCharacterStore } from '../../store/characterStore';
+import { AccountBar } from '../auth/AccountBar';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import styles from './CharacterListScreen.module.css';
 
@@ -19,6 +20,7 @@ export function CharacterListScreen() {
 
   return (
     <div className={styles.wrapper}>
+      <AccountBar />
       <h1 className={styles.title}>Персонажи</h1>
 
       <div className={styles.toolbar}>
